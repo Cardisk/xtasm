@@ -1,0 +1,18 @@
+#data
+hello = "Hello, World\n"
+
+#code
+entry main
+
+lib io end
+
+fn main 2 int in
+    -- dropping argc && argv
+    drop @args
+    
+    call out 
+        hello 
+    end
+    
+    ret 0
+end
