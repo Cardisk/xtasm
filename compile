@@ -2,5 +2,4 @@
 
 set -xe
 
-cmake -B ./build && make -C ./build &&
-    echo -e "----------\n" && ./build/xtasm
+cmake -B ./build && make -C ./build && ./build/xtasm

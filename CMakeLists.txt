@@ -3,4 +3,12 @@ set(CMAKE_CXX_STANDARD 23)
 
 project(xtasm)
 
-add_executable(xtasm main.cpp)
+set(SHARED ./src/shared/Basic.h ./src/shared/Basic.cpp ./src/shared/Logger.h ./src/shared/Option.h)
+
+set(TOKEN ./src/front/Token.h ./src/front/Token.cpp)
+
+set(LEXER ./src/front/Lexer.h ./src/front/Lexer.cpp)
+
+set(FRONT ${TOKEN} ${LEXER})
+
+add_executable(xtasm main.cpp ${SHARED} ${FRONT})
