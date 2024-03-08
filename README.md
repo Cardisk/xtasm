@@ -14,5 +14,4 @@ with which you can implement some basic stuff.
 - [ ] Good error reporting during lexing and parsing
 - [ ] Native execution (x86 && arm)
 - [ ] Both 32 and 64 bit
-- [ ] Statically typed
 - [ ] Self hosted (last goal)
