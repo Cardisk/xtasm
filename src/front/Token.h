@@ -11,6 +11,8 @@ enum TokenType {
     CODE,
     DATA,
     EXIT,
+    INT,
+    DEC,
     COUNT,
 };
 

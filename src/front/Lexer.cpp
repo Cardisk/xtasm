@@ -1,6 +1,7 @@
 #include "Lexer.h"
 
 #include <cctype>
+#include <cmath>
 #include <fstream>
 #include <stdexcept>
 #include <cerrno>
@@ -146,6 +147,23 @@ Option<Token> Lexer::next() {
                     // TODO: put here all the known instructions.
                     // XXX: handle also some user-defined in a final branch.
                     
+                    return Option<Token>::some(tkn);
+                } 
+                
+                if (std::isdigit(c)) {
+                    // consuming the token.
+                    while (this->peek().is_some_and(
+                        [](char x) { return ((bool) std::isdigit(x) || x == '.'); }
+                    )) {
+                        this->advance();
+                    }
+
+                    auto tkn = this->token();
+
+                    // checking for the correct number type.
+                    if (tkn.text.contains('.')) tkn.type = TokenType::DEC;
+                    else tkn.type = TokenType::INT;
+
                     return Option<Token>::some(tkn);
                 }
             } break;
