@@ -10,6 +10,7 @@ enum TokenType {
     INVALID,
     CODE,
     DATA,
+    EXIT,
     COUNT,
 };
 
