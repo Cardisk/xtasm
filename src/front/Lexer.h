@@ -21,6 +21,8 @@ class Lexer {
         Option<char> peek(uint_t offset = 0);
         // Used to advance the cursor.
         Option<char> advance(); 
+        // Used to handle a carriage return.
+        void new_line();
         // Used to get the next Token.
         Option<Token> next();
         // Used to reset the Lexer state.
@@ -32,6 +34,8 @@ class Lexer {
         std::string src;
         // current line.
         uint_t line;
+        // current column.
+        uint_t column;
         // used to discover new tokens.
         uint_t cursor;
         // current token column.

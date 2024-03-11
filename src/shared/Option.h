@@ -3,6 +3,8 @@
 
 #include <optional>
 
+// FIXME: consider adding variants for 'is_some_and' because
+//        often it will contain a function that will return 'int'
 template <typename T> 
 class Option {
     public:
