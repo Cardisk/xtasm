@@ -1,7 +1,6 @@
 #include "Lexer.h"
 
 #include <cctype>
-#include <cmath>
 #include <fstream>
 #include <stdexcept>
 #include <cerrno>
@@ -161,8 +160,13 @@ Option<Token> Lexer::next() {
                     auto tkn = this->token();
 
                     // checking for the correct number type.
-                    if (tkn.text.contains('.')) tkn.type = TokenType::DEC;
-                    else tkn.type = TokenType::INT;
+                    // if (tkn.text.contains('.')) tkn.type = TokenType::DEC;
+                    // else tkn.type = TokenType::INT;
+
+                    // TODO: at the moment nothing except INT will be handled.
+                    // XXX: to reintroduce the tokenization of floats uncomment the upper
+                    //      section.
+                    tkn.type = TokenType::INT;
 
                     return Option<Token>::some(tkn);
                 }

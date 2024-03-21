@@ -12,7 +12,7 @@ enum TokenType {
     DATA,
     EXIT,
     INT,
-    DEC,
+    // DEC,
     COUNT,
 };
 

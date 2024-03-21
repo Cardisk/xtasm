@@ -12,6 +12,7 @@ class Lexer {
     public:
         // Default c'tor.
         explicit Lexer() {}
+
         // Used to tokenize a file.
         std::vector<Token> lex_file(std::string filepath);
     private:

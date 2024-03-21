@@ -3,7 +3,8 @@
 #include "../shared/Basic.h"
 
 std::string ttype_str(TokenType type) {
-    static_assert(TokenType::COUNT == 6, "ERROR: ttype_str doesnt handle all the possible tokens!\n");
+    // handling all the types.
+    static_assert(TokenType::COUNT == 5, "ERROR: ttype_str doesnt handle all the possible tokens!\n");
 
     switch (type) {
         case TokenType::INVALID: return "INVALID";
@@ -11,7 +12,7 @@ std::string ttype_str(TokenType type) {
         case TokenType::DATA: return "DATA";
         case TokenType::EXIT: return "EXIT";
         case TokenType::INT: return "INT";
-        case TokenType::DEC: return "DEC";
+        // case TokenType::DEC: return "DEC";
         default:
             crash("`ttype_str` unreachable branch. This could be a bug into the Lexer.");
             return "";
