@@ -9,6 +9,8 @@ set(TOKEN ./src/front/Token.h ./src/front/Token.cpp)
 
 set(LEXER ./src/front/Lexer.h ./src/front/Lexer.cpp)
 
-set(FRONT ${TOKEN} ${LEXER})
+set(PARSER ./src/front/Parser.h ./src/front/Parser.cpp)
+
+set(FRONT ${TOKEN} ${LEXER} ${PARSER})
 
 add_executable(xtasm main.cpp ${SHARED} ${FRONT})
