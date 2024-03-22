@@ -3,8 +3,6 @@
 
 #include <optional>
 
-// FIXME: consider adding variants for 'is_some_and' because
-//        often it will contain a function that will return 'int'
 template <typename T> 
 class Option {
     public:
@@ -43,11 +41,23 @@ class Option {
                 return predicate(this->value.value());
             return false;
         }
+        // Accepts only Option value (captures not supported).
+        bool is_some_and(int (*predicate) (T)) {
+            if (this->is_some())
+                return (bool) predicate(this->value.value());
+            return 0;
+        }
         // Accepts Option value and another variable (captures not supported).
         bool is_some_and(bool (*predicate) (T, T), T comparison) {
             if (this->is_some())
                 return predicate (this->value.value(), comparison);
             return false;
+        }
+        // Accepts Option value and another variable (captures not supported).
+        bool is_some_and(int (*predicate) (T, T), T comparison) {
+            if (this->is_some())
+                return (bool) predicate(this->value.value(), comparison);
+            return 0;
         }
 
         // Replace the contained value.
