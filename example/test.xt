@@ -1,4 +1,6 @@
 #data
+.hello 10
+.world ?
 
 #code
 exit 10

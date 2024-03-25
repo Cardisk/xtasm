@@ -23,8 +23,14 @@ class Parser {
         Option<Token> advance();
         // Used to obtain the next instruction.
         std::unique_ptr<Instr> next();
+        // Used to parse the #data section.
+        std::unique_ptr<Data> parse_data();
+        // Used to parse the #code section.
+        std::unique_ptr<Code> parse_code();
         // Used to parse an exit instruction.
         std::unique_ptr<Exit> parse_exit();
+        // Used to parse a variable declaration.
+        std::unique_ptr<Var> parse_variable();
 
         // The program represented as tokens.
         std::vector<Token> tkns;

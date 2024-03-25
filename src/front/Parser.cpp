@@ -1,6 +1,7 @@
 #include "Parser.h"
 #include "Token.h"
 
+#include <iterator>
 #include <memory>
 #include <string>
 #include <vector>
@@ -52,8 +53,8 @@ std::unique_ptr<Instr> Parser::next() {
         auto tkn = this->advance().unwrap();
 
         switch (tkn.type) {
-            case TokenType::DATA: break;
-            case TokenType::CODE: break;
+            case TokenType::DATA: return this->parse_data();
+            case TokenType::CODE: return this->parse_code();
             case TokenType::EXIT: return this->parse_exit();
             default: {
                 auto msg = "Unexpected token '" + tkn.text + "' (Not a valid instruction)\n";
@@ -64,8 +65,28 @@ std::unique_ptr<Instr> Parser::next() {
         }
     }
 
-    // return None if the parsing is completed.
+    // return nullptr if the parsing is completed.
     return nullptr; 
+}
+
+std::unique_ptr<Data> Parser::parse_data() {
+    
+    std::vector<std::unique_ptr<Instr>> variables;
+
+    while (this->peek().is_some_and(
+        [](Token x) { return x.type == TokenType::VAR; }
+    )) {
+        auto var = this->parse_variable();
+        if (!var) break;
+
+        variables.push_back(std::move(var));
+    }
+
+    return std::make_unique<Data>(std::move(variables));
+}
+
+std::unique_ptr<Code> Parser::parse_code() {
+    return nullptr;
 }
 
 std::unique_ptr<Exit> Parser::parse_exit() {
@@ -93,5 +114,59 @@ std::unique_ptr<Exit> Parser::parse_exit() {
     // now the token has been validated.
     auto tkn = this->advance().unwrap();
     return std::make_unique<Exit>(std::stoi(tkn.text));
+}
+
+std::unique_ptr<Var> Parser::parse_variable() {
+    // no variables declared.
+    if (this->peek().is_none()) return nullptr;
+
+    // checking for a valid variable.
+    if (this->peek().is_some_and(
+        [](Token x) { return x.type != TokenType::VAR; }
+    )) {
+        // now it's a safe unwrapping, no need to consume.
+        auto tkn = this->peek().unwrap();
+        std::string msg = "Invalid variable declaration\n";
+        msg += "\tfound -- '" + tkn.text + "'\n";
+        msg += "\tat    -- " + token_loc(tkn);
+        // crashing the compiler.
+        crash(msg);
+    }
+
+    // this is a safe, variable name already checked.
+    // removing the '.' from the variable name.
+    std::string name = this->advance().unwrap().text.erase(0, 1);
+    // maybe there isn't a value, so initializing it with an empty string.
+    std::string value = "";
+
+    if (this->peek().is_none()) {
+        std::string msg = "Missing value for variable '" + name + "'\n\tfound at -- ";
+        msg += token_loc(this->tkns[this->cursor - 1]);
+        // crashing the compiler.
+        crash(msg);
+    }
+
+    auto tkn = this->peek().unwrap();
+    switch (tkn.type) {
+        case TokenType::INT:
+            value = tkn.text;
+            break;
+
+        case TokenType::QMARK:
+            // empty variable.
+            break;
+
+        default: {
+            std::string msg = "Invalid value for variable '" + name + "'\n";
+            msg += "\tfound -- '" + this->peek().unwrap().text + "'\n";
+            msg += "\tat    -- " + token_loc(tkn);
+            // crashing the compiler.
+            crash(msg);
+        } break;
+    }
+
+    value = this->advance().unwrap().text;
+    
+    return std::make_unique<Var>(name, value);
 }
 
