@@ -13,6 +13,9 @@ std::vector<Token> Lexer::lex_file(std::string filepath) {
     this->reset();
     this->filepath = filepath;
     
+    if (filepath.empty()) crash("No file provided.");
+    if (!filepath.ends_with(".xt")) crash("Invalid file extension. Expected '.xt'");
+
     // read the content of the file.
     std::ifstream file;
     file.open(filepath);
@@ -128,10 +131,38 @@ Option<Token> Lexer::next() {
                 this->old_cursor++;
                 this->new_line();
                 break;
+            
+            // ignoring comments.
+            case '-': {
+                if (!this->peek().is_some_and(
+                    [](char x) { return x == '-'; }
+                )) {
+                    auto tkn = this->token();
+                    auto msg = "Unexpected character '-' (Unfinished comment prefix)\n\tfound at -- " + token_loc(tkn);
+                    crash(msg);
+                }
+
+                // consume the line untile '\n'.
+                while (this->peek().is_some_and(
+                    [](char x) { return x != '\n'; }
+                )) {
+                    this->old_cursor++;
+                    this->advance();
+                }
+
+                this->old_cursor++;
+            } break;
+
+            // variable initialization inside bss.
+            case '?': {
+                auto tkn = this->token();
+                tkn.type = TokenType::QMARK;
+                return Option<Token>::some(tkn);
+            }
 
             default: {
                 // checking for keywords.
-                if (std::isalpha(c)) {
+                if (std::isalpha(c) || c == '.') {
                     // consuming the token.
                     while (this->peek().is_some_and(
                         [](char x) { return (bool) std::isalpha(x); }
@@ -142,6 +173,9 @@ Option<Token> Lexer::next() {
                     auto tkn = this->token();
 
                     // checking word existence
+                    
+                    if (tkn.text.starts_with('.')) tkn.type = TokenType::VAR;
+
                     if (tkn.text == "exit") tkn.type = TokenType::EXIT;
                     // TODO: put here all the known instructions.
                     // XXX: handle also some user-defined in a final branch.
