@@ -2,13 +2,21 @@
 #define INSTRUCTIONSET_H
 
 #include "shared/Basic.h"
+#include <memory>
 #include <vector>
 #include <string>
+
+// Forward declaration for the Visitor class.
+class Instr;
 
 // Design Pattern: Visitor.
 class Visitor {
     public:
-        virtual std::string compile_exit(int value) { return ""; };
+        // TODO: make these pure virtual methods.
+        virtual std::string compile_data(std::vector<std::unique_ptr<Instr>> variables) { return ""; } 
+        virtual std::string compile_code(std::vector<std::unique_ptr<Instr>> instructions) { return ""; } 
+        virtual std::string compile_exit(int value) { return ""; }
+        virtual std::string compile_var(std::string name, std::string value) { return ""; }
 };
 
 // Instruction set.
@@ -23,6 +31,24 @@ class Instr {
         };
 };
 
+class Data : public Instr {
+    public:
+        explicit Data(std::vector<std::unique_ptr<Instr>> variables) : variables(std::move(variables)) {} 
+
+        std::string compile(Visitor &v) { return v.compile_data(std::move(this->variables)); }
+
+        std::vector<std::unique_ptr<Instr>> variables;
+};
+
+class Code : public Instr {
+    public:
+        explicit Code(std::vector<std::unique_ptr<Instr>> instructions) : instructions(std::move(instructions)) {} 
+
+        std::string compile(Visitor &v) { return v.compile_code(std::move(this->instructions)); }
+
+        std::vector<std::unique_ptr<Instr>> instructions;
+};
+
 class Exit : public Instr {
     public:
         explicit Exit(int exit_value) : exit_value(exit_value) {}
@@ -30,6 +56,16 @@ class Exit : public Instr {
         std::string compile(Visitor &v) { return v.compile_exit(this->exit_value); }
 
         int exit_value;
+};
+
+class Var : public Instr {
+    public:
+        explicit Var(std::string name, std::string value) : name(name), value(value) {}
+
+        std::string compile(Visitor &v) { return v.compile_var(this->name, this->value); }
+
+        std::string name;
+        std::string value;
 };
 
 #endif // INSTRUCTIONSET_H
