@@ -68,26 +68,34 @@ std::unique_ptr<Instr> Parser::next() {
 }
 
 std::unique_ptr<Data> Parser::parse_data() {
+    // data section is empty.
     std::vector<std::unique_ptr<Instr>> variables;
 
+    // parsing the variables.
     while (this->peek().is_some_and(
         [](Token x) { return x.type == TokenType::VAR; }
     )) {
+        // parsing the current variable.
         auto var = this->parse_variable();
         if (!var) break;
 
         variables.push_back(std::move(var));
     }
 
+    // returning the parsed data.
     return std::make_unique<Data>(std::move(variables));
 }
 
 std::unique_ptr<Code> Parser::parse_code() {
+    // code section is empty.
     std::vector<std::unique_ptr<Instr>> instructions;
 
+    // parsing the instructions.
     while (this->peek().is_some()) {
+        // now it's safe.
         auto tkn = this->advance().unwrap();
 
+        // switching all the possible instructions.
         switch (tkn.type) {
             case TokenType::EXIT: {
                 auto exit = this->parse_exit();
@@ -105,6 +113,7 @@ std::unique_ptr<Code> Parser::parse_code() {
         }
     }
 
+    // returning the parsed code.
     return std::make_unique<Code>(std::move(instructions));
 }
 
@@ -117,22 +126,32 @@ std::unique_ptr<Exit> Parser::parse_exit() {
         crash(msg);
     }
 
+    std::string value;
+
     // checking for a valid value.
-    if (this->peek().is_some_and(
-        [](Token x) { return x.type != TokenType::INT; }
-    )) {
-        // now it's a safe unwrapping, no need to consume.
-        auto tkn = this->peek().unwrap();
-        std::string msg = "Invalid parameter used for EXIT instruction\n";
-        msg += "\tfound -- '" + tkn.text + "'\n";
-        msg += "\tat    -- " + token_loc(tkn);
-        // crashing the compiler.
-        crash(msg);
+    if (this->peek().is_some()) {
+        // now it's safe.
+        auto tkn = this->advance().unwrap();
+
+        // switching all the possible values.
+        switch (tkn.type) {
+            case TokenType::VAR:
+            case TokenType::INT: {
+                value = tkn.text;
+            } break;
+
+            default: {
+                std::string msg = "Invalid parameter used for EXIT instruction\n";
+                msg += "\tfound -- '" + tkn.text + "'\n";
+                msg += "\tat    -- " + token_loc(tkn);
+                // crashing the compiler.
+                crash(msg);
+            } break;
+        }
     }
 
-    // now the token has been validated.
-    auto tkn = this->advance().unwrap();
-    return std::make_unique<Exit>(std::stoi(tkn.text));
+    // now the value has been parsed.
+    return std::make_unique<Exit>(value);
 }
 
 std::unique_ptr<Var> Parser::parse_variable() {

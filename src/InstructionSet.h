@@ -15,7 +15,7 @@ class Visitor {
         // TODO: make these pure virtual methods.
         virtual std::string compile_data(std::vector<std::unique_ptr<Instr>> variables) { return ""; } 
         virtual std::string compile_code(std::vector<std::unique_ptr<Instr>> instructions) { return ""; } 
-        virtual std::string compile_exit(int value) { return ""; }
+        virtual std::string compile_exit(std::string value) { return ""; }
         virtual std::string compile_var(std::string name, std::string value) { return ""; }
 };
 
@@ -51,11 +51,11 @@ class Code : public Instr {
 
 class Exit : public Instr {
     public:
-        explicit Exit(int exit_value) : exit_value(exit_value) {}
+        explicit Exit(std::string exit_value) : exit_value(exit_value) {}
 
         std::string compile(Visitor &v) { return v.compile_exit(this->exit_value); }
 
-        int exit_value;
+        std::string exit_value;
 };
 
 class Var : public Instr {

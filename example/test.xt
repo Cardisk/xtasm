@@ -3,4 +3,4 @@
 .world ?
 
 #code
-exit 10
+exit .hello 
