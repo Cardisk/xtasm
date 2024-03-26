@@ -24,6 +24,7 @@ int main(void) {
     auto vp = p.parse_tkns(vl); 
 
     std::cout << "len(instructions) = " << vp.size() << std::endl << std::endl;
-    
+    std::cout << "len(data) = " << ((Data*)(vp.at(0).get()))->variables.size() << std::endl;
+    std::cout << "len(code) = " << ((Code*)(vp.at(1).get()))->instructions.size() << std::endl;
     return 0;
 }

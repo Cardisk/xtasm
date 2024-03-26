@@ -1,7 +1,6 @@
 #include "Parser.h"
 #include "Token.h"
 
-#include <iterator>
 #include <memory>
 #include <string>
 #include <vector>
@@ -55,7 +54,6 @@ std::unique_ptr<Instr> Parser::next() {
         switch (tkn.type) {
             case TokenType::DATA: return this->parse_data();
             case TokenType::CODE: return this->parse_code();
-            case TokenType::EXIT: return this->parse_exit();
             default: {
                 auto msg = "Unexpected token '" + tkn.text + "' (Not a valid instruction)\n";
                 msg += "\t\tfound at -- " + token_loc(tkn);
@@ -70,7 +68,6 @@ std::unique_ptr<Instr> Parser::next() {
 }
 
 std::unique_ptr<Data> Parser::parse_data() {
-    
     std::vector<std::unique_ptr<Instr>> variables;
 
     while (this->peek().is_some_and(
@@ -86,7 +83,29 @@ std::unique_ptr<Data> Parser::parse_data() {
 }
 
 std::unique_ptr<Code> Parser::parse_code() {
-    return nullptr;
+    std::vector<std::unique_ptr<Instr>> instructions;
+
+    while (this->peek().is_some()) {
+        auto tkn = this->advance().unwrap();
+
+        switch (tkn.type) {
+            case TokenType::EXIT: {
+                auto exit = this->parse_exit();
+                if (!exit) break;
+
+                instructions.push_back(std::move(exit));
+            } break;
+
+            default: {
+                std::string msg = "Unexpected token '" + tkn.text + "' (Not a valid instruction)\n";
+                msg += "\t\tfound at -- " + token_loc(tkn);
+                // crashing the compiler.
+                crash(msg);
+            } break;
+        }
+    }
+
+    return std::make_unique<Code>(std::move(instructions));
 }
 
 std::unique_ptr<Exit> Parser::parse_exit() {
