@@ -104,6 +104,27 @@ std::unique_ptr<Code> Parser::parse_code() {
                 instructions.push_back(std::move(exit));
             } break;
 
+            case TokenType::ADD: {
+                auto add = this->parse_add();
+                if (!add) break;
+
+                instructions.push_back(std::move(add));
+            } break;
+
+            case TokenType::SUB: {
+                auto sub = this->parse_sub();
+                if (!sub) break;
+
+                instructions.push_back(std::move(sub));
+            } break;
+
+            case TokenType::MOV: {
+                auto mov = this->parse_mov();
+                if (!mov) break;
+
+                instructions.push_back(std::move(mov));
+            } break;
+
             default: {
                 std::string msg = "Unexpected token '" + tkn.text + "' (Not a valid instruction)\n";
                 msg += "\t\tfound at -- " + token_loc(tkn);
@@ -126,7 +147,7 @@ std::unique_ptr<Exit> Parser::parse_exit() {
         crash(msg);
     }
 
-    std::string value;
+    std::unique_ptr<Instr> value;
 
     // checking for a valid value.
     if (this->peek().is_some()) {
@@ -135,9 +156,13 @@ std::unique_ptr<Exit> Parser::parse_exit() {
 
         // switching all the possible values.
         switch (tkn.type) {
-            case TokenType::VAR:
+            case TokenType::VAR: {
+                value = std::make_unique<Var>(tkn.text, "", false);
+            } break;
+
+            case TokenType::REG:
             case TokenType::INT: {
-                value = tkn.text;
+                value = std::make_unique<Txt>(tkn.text);
             } break;
 
             default: {
@@ -151,7 +176,7 @@ std::unique_ptr<Exit> Parser::parse_exit() {
     }
 
     // now the value has been parsed.
-    return std::make_unique<Exit>(value);
+    return std::make_unique<Exit>(std::move(value));
 }
 
 std::unique_ptr<Var> Parser::parse_variable() {
@@ -205,6 +230,206 @@ std::unique_ptr<Var> Parser::parse_variable() {
 
     value = this->advance().unwrap().text;
     
-    return std::make_unique<Var>(name, value);
+    return std::make_unique<Var>(name, value, true);
 }
 
+std::unique_ptr<Add> Parser::parse_add() {
+    // checking for a value.
+    if (this->peek().is_none()) {
+        std::string msg = "Missing values for ADD instruction\n\tfound at -- ";
+        msg += token_loc(this->tkns[this->cursor - 1]);
+        // crashing the compiler.
+        crash(msg);
+    }
+
+    std::unique_ptr<Instr> lhs;
+    std::unique_ptr<Instr> rhs;
+
+    // checking for a valid lhs.
+    if (this->peek().is_some()) {
+        // now it's safe.
+        auto tkn = this->advance().unwrap();
+
+        // switching all the possible values.
+        switch (tkn.type) {
+            case TokenType::VAR: {
+                lhs = std::make_unique<Var>(tkn.text, "", false);
+            } break;
+
+            case TokenType::REG: {
+                lhs = std::make_unique<Txt>(tkn.text);
+            } break;
+
+            default: {
+                std::string msg = "Invalid left hand side for ADD instruction\n";
+                msg += "\tfound -- '" + tkn.text + "'\n";
+                msg += "\tat    -- " + token_loc(tkn);
+                // crashing the compiler.
+                crash(msg);
+            } break;
+        }
+    }
+    
+    // checking for a valid rhs.
+    if (this->peek().is_some()) {
+        // now it's safe.
+        auto tkn = this->advance().unwrap();
+
+        // switching all the possible values.
+        switch (tkn.type) {
+            case TokenType::VAR: {
+                rhs = std::make_unique<Var>(tkn.text, "", false);
+            } break;
+
+            case TokenType::INT:
+            case TokenType::REG: {
+                rhs = std::make_unique<Txt>(tkn.text);
+            } break;
+
+            default: {
+                std::string msg = "Invalid right hand side for ADD instruction\n";
+                msg += "\tfound -- '" + tkn.text + "'\n";
+                msg += "\tat    -- " + token_loc(tkn);
+                // crashing the compiler.
+                crash(msg);
+            } break;
+        }
+    }
+
+    // now the values have been parsed.
+    return std::make_unique<Add>(std::move(lhs), std::move(rhs));
+}
+
+std::unique_ptr<Sub> Parser::parse_sub() {
+    // checking for a value.
+    if (this->peek().is_none()) {
+        std::string msg = "Missing values for SUB instruction\n\tfound at -- ";
+        msg += token_loc(this->tkns[this->cursor - 1]);
+        // crashing the compiler.
+        crash(msg);
+    }
+
+    std::unique_ptr<Instr> lhs;
+    std::unique_ptr<Instr> rhs;
+
+    // checking for a valid lhs.
+    if (this->peek().is_some()) {
+        // now it's safe.
+        auto tkn = this->advance().unwrap();
+
+        // switching all the possible values.
+        switch (tkn.type) {
+            case TokenType::VAR: {
+                lhs = std::make_unique<Var>(tkn.text, "", false);
+            } break;
+
+            case TokenType::REG: {
+                lhs = std::make_unique<Txt>(tkn.text);
+            } break;
+
+            default: {
+                std::string msg = "Invalid left hand side for SUB instruction\n";
+                msg += "\tfound -- '" + tkn.text + "'\n";
+                msg += "\tat    -- " + token_loc(tkn);
+                // crashing the compiler.
+                crash(msg);
+            } break;
+        }
+    }
+    
+    // checking for a valid rhs.
+    if (this->peek().is_some()) {
+        // now it's safe.
+        auto tkn = this->advance().unwrap();
+
+        // switching all the possible values.
+        switch (tkn.type) {
+            case TokenType::VAR: {
+                rhs = std::make_unique<Var>(tkn.text, "", false);
+            } break;
+
+            case TokenType::INT:
+            case TokenType::REG: {
+                rhs = std::make_unique<Txt>(tkn.text);
+            } break;
+
+            default: {
+                std::string msg = "Invalid right hand side for SUB instruction\n";
+                msg += "\tfound -- '" + tkn.text + "'\n";
+                msg += "\tat    -- " + token_loc(tkn);
+                // crashing the compiler.
+                crash(msg);
+            } break;
+        }
+    }
+
+    // now the values have been parsed.
+    return std::make_unique<Sub>(std::move(lhs), std::move(rhs));
+}
+
+std::unique_ptr<Mov> Parser::parse_mov() {
+    // checking for a value.
+    if (this->peek().is_none()) {
+        std::string msg = "Missing values for MOV instruction\n\tfound at -- ";
+        msg += token_loc(this->tkns[this->cursor - 1]);
+        // crashing the compiler.
+        crash(msg);
+    }
+
+    std::unique_ptr<Instr> dst;
+    std::unique_ptr<Instr> src;
+
+    // checking for a valid dst.
+    if (this->peek().is_some()) {
+        // now it's safe.
+        auto tkn = this->advance().unwrap();
+
+        // switching all the possible values.
+        switch (tkn.type) {
+            case TokenType::VAR: {
+                dst = std::make_unique<Var>(tkn.text, "", false);
+            } break;
+
+            case TokenType::REG: {
+                dst = std::make_unique<Txt>(tkn.text);
+            } break;
+
+            default: {
+                std::string msg = "Invalid destination for MOV instruction\n";
+                msg += "\tfound -- '" + tkn.text + "'\n";
+                msg += "\tat    -- " + token_loc(tkn);
+                // crashing the compiler.
+                crash(msg);
+            } break;
+        }
+    }
+    
+    // checking for a valid src.
+    if (this->peek().is_some()) {
+        // now it's safe.
+        auto tkn = this->advance().unwrap();
+
+        // switching all the possible values.
+        switch (tkn.type) {
+            case TokenType::VAR: {
+                src = std::make_unique<Var>(tkn.text, "", false);
+            } break;
+
+            case TokenType::INT:
+            case TokenType::REG: {
+                src = std::make_unique<Txt>(tkn.text);
+            } break;
+
+            default: {
+                std::string msg = "Invalid source for MOV instruction\n";
+                msg += "\tfound -- '" + tkn.text + "'\n";
+                msg += "\tat    -- " + token_loc(tkn);
+                // crashing the compiler.
+                crash(msg);
+            } break;
+        }
+    }
+
+    // now the values have been parsed.
+    return std::make_unique<Mov>(std::move(dst), std::move(src));
+}

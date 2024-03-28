@@ -2,6 +2,8 @@
 #define INSTRUCTIONSET_H
 
 #include "shared/Basic.h"
+#include <algorithm>
+#include <cmath>
 #include <memory>
 #include <vector>
 #include <string>
@@ -16,7 +18,10 @@ class Visitor {
         virtual std::string compile_data(std::vector<std::unique_ptr<Instr>> variables) { return ""; } 
         virtual std::string compile_code(std::vector<std::unique_ptr<Instr>> instructions) { return ""; } 
         virtual std::string compile_exit(std::string value) { return ""; }
-        virtual std::string compile_var(std::string name, std::string value) { return ""; }
+        virtual std::string compile_add(std::string dst, std::string src) { return ""; }
+        virtual std::string compile_sub(std::string dst, std::string src) { return ""; }
+        virtual std::string compile_mov(std::string dst, std::string src) { return ""; }
+        virtual std::string compile_var(std::string name, std::string value, bool is_decl) { return ""; }
 };
 
 // Instruction set.
@@ -26,7 +31,7 @@ class Instr {
 
         // TODO: make this a pure virtual method.
         virtual std::string compile(Visitor &v) { 
-            crash("If you see this message it means that there is an error inside Parser.\n");
+            crash("If you see this message it means that there is an error inside the Parser.\n");
             return ""; 
         };
 };
@@ -51,20 +56,60 @@ class Code : public Instr {
 
 class Exit : public Instr {
     public:
-        explicit Exit(std::string exit_value) : exit_value(exit_value) {}
+        explicit Exit(std::unique_ptr<Instr> exit_value) : exit_value(std::move(exit_value)) {}
 
-        std::string compile(Visitor &v) { return v.compile_exit(this->exit_value); }
+        std::string compile(Visitor &v) { return v.compile_exit(this->exit_value->compile(v)); }
 
-        std::string exit_value;
+        std::unique_ptr<Instr> exit_value;
+};
+
+class Add : public Instr {
+    public:
+        explicit Add(std::unique_ptr<Instr> dst, std::unique_ptr<Instr> src) : dst(std::move(dst)), src(std::move(src)) {}
+
+        std::string compile(Visitor &v) { return v.compile_add(this->dst->compile(v), this->src->compile(v)); }
+
+        std::unique_ptr<Instr> dst;
+        std::unique_ptr<Instr> src;
+};
+
+class Sub : public Instr {
+    public:
+        explicit Sub(std::unique_ptr<Instr> dst, std::unique_ptr<Instr> src) : dst(std::move(dst)), src(std::move(src)) {}
+
+        std::string compile(Visitor &v) { return v.compile_sub(this->dst->compile(v), this->src->compile(v)); }
+
+        std::unique_ptr<Instr> dst;
+        std::unique_ptr<Instr> src;
+};
+
+class Mov : public Instr {
+    public:
+        explicit Mov(std::unique_ptr<Instr> dst, std::unique_ptr<Instr> src) : dst(std::move(dst)), src(std::move(src)) {}
+
+        std::string compile(Visitor &v) { return v.compile_mov(this->dst->compile(v), this->src->compile(v)); }
+
+        std::unique_ptr<Instr> dst;
+        std::unique_ptr<Instr> src;
 };
 
 class Var : public Instr {
     public:
-        explicit Var(std::string name, std::string value) : name(name), value(value) {}
+        explicit Var(std::string name, std::string value, bool is_decl) : name(name), value(value), is_decl(is_decl) {}
 
-        std::string compile(Visitor &v) { return v.compile_var(this->name, this->value); }
+        std::string compile(Visitor &v) { return v.compile_var(this->name, this->value, this->is_decl); }
 
         std::string name;
+        std::string value;
+        bool is_decl = true;
+};
+
+class Txt : public Instr {
+    public:
+        explicit Txt(std::string txt) : value(txt) {}
+
+        std::string compile(Visitor &v) { return this->value; }
+
         std::string value;
 };
 

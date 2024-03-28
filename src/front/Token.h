@@ -8,13 +8,22 @@
 // All the possible token types.
 enum TokenType {
     INVALID,
+    // Sections.
     CODE,
     DATA,
+    // Registers.
+    REG,
+    // Instructions.
     EXIT,
+    ADD,
+    SUB,
+    MOV,
+    // Variables.
     VAR,
     QMARK,
     INT,
     // DEC,
+    // Utility.
     COUNT,
 };
 

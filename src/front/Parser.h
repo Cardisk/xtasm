@@ -31,6 +31,12 @@ class Parser {
         std::unique_ptr<Exit> parse_exit();
         // Used to parse a variable declaration.
         std::unique_ptr<Var> parse_variable();
+        // Used to parse an add instruction.
+        std::unique_ptr<Add> parse_add();
+        // Used to parse a sub instruction.
+        std::unique_ptr<Sub> parse_sub();
+        // Used to parse a mov instruction.
+        std::unique_ptr<Mov> parse_mov();
 
         // The program represented as tokens.
         std::vector<Token> tkns;

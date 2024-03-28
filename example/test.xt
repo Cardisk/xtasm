@@ -1,6 +1,9 @@
 #data
-.hello 10
-.world ?
+.hello      10
+.world      ?
 
 #code
+mov  $AX    20
+add  .hello 10
+sub  .hello 5
 exit .hello 

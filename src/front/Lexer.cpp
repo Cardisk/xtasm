@@ -120,6 +120,21 @@ Option<Token> Lexer::next() {
                 return Option<Token>::some(tkn);
             } break;
 
+            case '$': {
+                // consume the token.
+                while (this->peek().is_some_and(
+                    [](char x) { return (x != ' ' && x != '\n'); }
+                )) {
+                    this->advance();
+                }
+
+                auto tkn = this->token();
+                tkn.type = TokenType::REG;
+                tkn.text.replace(0, 1, "");
+
+                return Option<Token>::some(tkn);
+            } break;
+
             // ignoring spaces.
             case ' ':
                 this->old_cursor++;
@@ -177,6 +192,10 @@ Option<Token> Lexer::next() {
                     if (tkn.text.starts_with('.')) tkn.type = TokenType::VAR;
 
                     if (tkn.text == "exit") tkn.type = TokenType::EXIT;
+                    else if (tkn.text == "add") tkn.type = TokenType::ADD;
+                    else if (tkn.text == "sub") tkn.type = TokenType::SUB;
+                    else if (tkn.text == "mov") tkn.type = TokenType::MOV;
+                    
                     // TODO: put here all the known instructions.
                     // XXX: handle also some user-defined in a final branch.
                     
