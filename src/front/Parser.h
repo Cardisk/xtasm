@@ -29,6 +29,8 @@ class Parser {
         std::unique_ptr<Code> parse_code();
         // Used to parse an exit instruction.
         std::unique_ptr<Exit> parse_exit();
+        // Used to parse an enum declaration.
+        std::unique_ptr<Enum_Var> parse_enum();
         // Used to parse a variable declaration.
         std::unique_ptr<Var> parse_variable();
         // Used to parse an add instruction.

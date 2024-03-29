@@ -93,6 +93,16 @@ class Mov : public Instr {
         std::unique_ptr<Instr> src;
 };
 
+class Enum_Var : public Instr {
+    public:
+        explicit Enum_Var(std::string name, std::vector<std::unique_ptr<Instr>> values) : name(name), values(std::move(values)) {}
+
+        std::string compile(Visitor &v) { return ""; }
+
+        std::string name;
+        std::vector<std::unique_ptr<Instr>> values;
+};
+
 class Var : public Instr {
     public:
         explicit Var(std::string name, std::string value, bool is_decl) : name(name), value(value), is_decl(is_decl) {}

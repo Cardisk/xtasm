@@ -180,7 +180,7 @@ Option<Token> Lexer::next() {
                 if (std::isalpha(c) || c == '.') {
                     // consuming the token.
                     while (this->peek().is_some_and(
-                        [](char x) { return (bool) std::isalpha(x); }
+                        [](char x) { return (bool) std::isalpha(x) || x == '_'; }
                     )) {
                         this->advance();
                     }
@@ -189,15 +189,15 @@ Option<Token> Lexer::next() {
 
                     // checking word existence
                     
-                    if (tkn.text.starts_with('.')) tkn.type = TokenType::VAR;
-
-                    if (tkn.text == "exit") tkn.type = TokenType::EXIT;
-                    else if (tkn.text == "add") tkn.type = TokenType::ADD;
-                    else if (tkn.text == "sub") tkn.type = TokenType::SUB;
-                    else if (tkn.text == "mov") tkn.type = TokenType::MOV;
-                    
+                    if      (tkn.text.starts_with('.')) tkn.type = TokenType::VAR;
                     // TODO: put here all the known instructions.
-                    // XXX: handle also some user-defined in a final branch.
+                    else if (tkn.text == "exit") tkn.type = TokenType::EXIT;
+                    else if (tkn.text == "add")  tkn.type = TokenType::ADD;
+                    else if (tkn.text == "sub")  tkn.type = TokenType::SUB;
+                    else if (tkn.text == "mov")  tkn.type = TokenType::MOV;
+                    else if (tkn.text == "enum") tkn.type = TokenType::ENUM;
+                    else if (tkn.text == "end")  tkn.type = TokenType::END;
+                    else tkn.type = TokenType::NAME;
                     
                     return Option<Token>::some(tkn);
                 } 

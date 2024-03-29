@@ -13,12 +13,16 @@ enum TokenType {
     DATA,
     // Registers.
     REG,
+    // Control flow.
+    END,
     // Instructions.
     EXIT,
     ADD,
     SUB,
     MOV,
     // Variables.
+    NAME,
+    ENUM,
     VAR,
     QMARK,
     INT,

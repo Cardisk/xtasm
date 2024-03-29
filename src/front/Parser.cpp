@@ -1,6 +1,7 @@
 #include "Parser.h"
 #include "Token.h"
 
+#include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
@@ -73,14 +74,32 @@ std::unique_ptr<Data> Parser::parse_data() {
 
     // parsing the variables.
     while (this->peek().is_some_and(
-        [](Token x) { return x.type == TokenType::VAR; }
+        [](Token x) { return x.type != TokenType::CODE; }
     )) {
-        // parsing the current variable.
-        auto var = this->parse_variable();
-        if (!var) break;
+        auto tkn = this->peek().unwrap();
 
-        variables.push_back(std::move(var));
+        switch (tkn.type) {
+            case TokenType::VAR: {
+                auto var = this->parse_variable();
+                if (!var) break;
+
+                variables.push_back(std::move(var));
+            } break;
+
+            case TokenType::ENUM: {
+                // skipping the ENUM keyword. 
+                this->advance();
+                auto enum_var = this->parse_enum();
+                if (!enum_var) break;
+
+                variables.push_back(std::move(enum_var));
+            } break;
+
+            default: 
+                break;
+        }
     }
+    std::cout << "#data parsed\n";
 
     // returning the parsed data.
     return std::make_unique<Data>(std::move(variables));
@@ -91,7 +110,9 @@ std::unique_ptr<Code> Parser::parse_code() {
     std::vector<std::unique_ptr<Instr>> instructions;
 
     // parsing the instructions.
-    while (this->peek().is_some()) {
+    while (this->peek().is_some_and(
+        [](Token x) { return x.type != TokenType::END; }
+    )) {
         // now it's safe.
         auto tkn = this->advance().unwrap();
 
@@ -433,3 +454,53 @@ std::unique_ptr<Mov> Parser::parse_mov() {
     // now the values have been parsed.
     return std::make_unique<Mov>(std::move(dst), std::move(src));
 }
+
+std::unique_ptr<Enum_Var> Parser::parse_enum() {
+    // enum error.
+    if (this->peek().is_none()) {
+        std::string msg = "Missing values for ENUM instruction\n\tfound at -- ";
+        msg += token_loc(this->tkns[this->cursor - 1]);
+        // crashing the compiler.
+        crash(msg);
+    }
+
+    auto name = this->advance().unwrap().text;
+
+    std::vector<std::unique_ptr<Instr>> values;
+    int enum_index = 0;
+    while (this->peek().is_some_and(
+        [](Token x) { return x.type != TokenType::END; }
+    )) {
+        auto tkn_name = this->advance().unwrap();
+
+        if (tkn_name.type != TokenType::VAR) {
+            std::string msg = "Invalid value for ENUM declaration.\n\tfound -- '" + tkn_name.text + "'\n";
+            msg += "\tat -- " + token_loc(tkn_name);
+            // crashing the compiler.
+            crash(msg);
+        }
+
+        if (this->peek().is_some_and( 
+                [](Token x) { return x.type == TokenType::INT; } 
+        )) {
+            enum_index = std::stoi(this->advance().unwrap().text);
+        }
+
+        values.push_back(std::make_unique<Var>(
+            tkn_name.text, std::to_string(enum_index), true
+        ));
+        
+        enum_index++;
+    }
+
+    // consuming the END token.
+    if (this->peek().is_some_and(
+        [](Token x) { return x.type == TokenType::END; }
+    )) {
+        this->advance();
+    }
+
+    return std::make_unique<Enum_Var>(name, std::move(values));
+}
+
+
