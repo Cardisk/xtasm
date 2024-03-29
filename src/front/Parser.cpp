@@ -99,7 +99,6 @@ std::unique_ptr<Data> Parser::parse_data() {
                 break;
         }
     }
-    std::cout << "#data parsed\n";
 
     // returning the parsed data.
     return std::make_unique<Data>(std::move(variables));
