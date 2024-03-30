@@ -180,7 +180,7 @@ Option<Token> Lexer::next() {
                 if (std::isalpha(c) || c == '.') {
                     // consuming the token.
                     while (this->peek().is_some_and(
-                        [](char x) { return (bool) std::isalpha(x) || x == '_'; }
+                        [](char x) { return (bool) std::isalpha(x) || x == '_' || x == '.'; }
                     )) {
                         this->advance();
                     }
