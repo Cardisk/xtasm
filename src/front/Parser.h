@@ -40,6 +40,8 @@ class Parser {
         // Used to parse a mov instruction.
         std::unique_ptr<Mov> parse_mov();
 
+        // LABELS ARE HANDLED INSIDE 'parse_code()' METHOD.
+
         // The program represented as tokens.
         std::vector<Token> tkns;
         // Current token inside the vector.

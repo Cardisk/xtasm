@@ -14,6 +14,7 @@ enum TokenType {
     // Registers.
     REG,
     // Control flow.
+    LABEL,
     END,
     // Instructions.
     EXIT,

@@ -1,7 +1,6 @@
 #include "Parser.h"
 #include "Token.h"
 
-#include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
@@ -117,6 +116,13 @@ std::unique_ptr<Code> Parser::parse_code() {
 
         // switching all the possible instructions.
         switch (tkn.type) {
+            case TokenType::LABEL: {
+                auto label = std::make_unique<Label>(tkn.text);
+
+                instructions.push_back(std::move(label));
+            } break;
+
+
             case TokenType::EXIT: {
                 auto exit = this->parse_exit();
                 if (!exit) break;

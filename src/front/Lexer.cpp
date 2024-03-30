@@ -135,6 +135,22 @@ Option<Token> Lexer::next() {
                 return Option<Token>::some(tkn);
             } break;
 
+            // label definition.
+            case ':': {
+                // consume the token.
+                while (this->peek().is_some_and(
+                    [](char x) { return (x != ' ' && x != '\n'); }
+                )) {
+                    this->advance();
+                }
+
+                auto tkn = this->token();
+                tkn.type = TokenType::LABEL;
+                tkn.text.replace(0, 1, "");
+
+                return Option<Token>::some(tkn);
+            } break;
+
             // ignoring spaces.
             case ' ':
                 this->old_cursor++;

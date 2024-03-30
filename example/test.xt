@@ -9,7 +9,8 @@ enum enum_name
 end
 
 #code
-mov  $AX    20
-add  .hello 10
-sub  .hello 5
-exit .hello
+:label
+    mov  $AX    .enum_name.c
+    add  .hello 10
+    sub  .hello 5  
+    exit .hello  
