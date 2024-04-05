@@ -15,7 +15,12 @@ enum TokenType {
     REG,
     // Control flow.
     LABEL,
+    IF,
+    IN,
+    ELSE,
     END,
+    // Booleans.
+    EQ,
     // Instructions.
     EXIT,
     ADD,

@@ -113,6 +113,38 @@ class Enum_Var : public Instr {
         std::vector<std::unique_ptr<Instr>> values;
 };
 
+class If : public Instr {
+    public:
+        explicit If(std::unique_ptr<Instr> condition, 
+                    std::vector<std::unique_ptr<Instr>> if_body, 
+                    std::vector<std::unique_ptr<Instr>> else_body) 
+            : condition(std::move(condition)), if_body(std::move(if_body)), else_body(std::move(else_body)) {}
+
+        std::unique_ptr<Instr> condition;
+        std::vector<std::unique_ptr<Instr>> if_body;
+        std::vector<std::unique_ptr<Instr>> else_body;
+};
+
+// Enum representing the condition operations.
+// TODO: implement the rest of the operations.
+enum Cond_Op {
+    EQU,
+    // NE,
+    // LT,
+    // GT,
+    // LE,
+    // GE
+};
+
+class Cond : public Instr {
+    public:
+        explicit Cond(Cond_Op op, std::unique_ptr<Instr> lhs, std::unique_ptr<Instr> rhs) : op(op), lhs(std::move(lhs)), rhs(std::move(rhs)) {}
+
+        Cond_Op op;
+        std::unique_ptr<Instr> lhs;
+        std::unique_ptr<Instr> rhs;
+};
+
 class Var : public Instr {
     public:
         explicit Var(std::string name, std::string value, bool is_decl) : name(name), value(value), is_decl(is_decl) {}

@@ -1,6 +1,8 @@
 #include "Parser.h"
 #include "Token.h"
 
+#include <iostream>
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -103,61 +105,52 @@ std::unique_ptr<Data> Parser::parse_data() {
     return std::make_unique<Data>(std::move(variables));
 }
 
+std::unique_ptr<Instr> Parser::parse(Token tkn) {
+    // switching all the possible instructions.
+    switch (tkn.type) {
+        case TokenType::LABEL: 
+            return std::make_unique<Label>(tkn.text);
+
+        case TokenType::IF: 
+            return this->parse_if();
+
+        case TokenType::EXIT: 
+            return this->parse_exit();
+
+        case TokenType::ADD: 
+            return this->parse_add();
+
+        case TokenType::SUB: 
+            return this->parse_sub();
+
+        case TokenType::MOV: 
+            return this->parse_mov();
+
+        default: {
+            std::string msg = "Unexpected token '" + tkn.text + "' (Not a valid instruction)\n";
+            msg += "\t\tfound at -- " + token_loc(tkn);
+            // crashing the compiler.
+            crash(msg);
+        } break;
+    }
+
+    return nullptr;
+}
+
 std::unique_ptr<Code> Parser::parse_code() {
     // code section is empty.
     std::vector<std::unique_ptr<Instr>> instructions;
 
     // parsing the instructions.
     while (this->peek().is_some_and(
-        [](Token x) { return x.type != TokenType::END; }
+        [](Token x) { return x.type != TokenType::DATA; }
     )) {
         // now it's safe.
         auto tkn = this->advance().unwrap();
 
-        // switching all the possible instructions.
-        switch (tkn.type) {
-            case TokenType::LABEL: {
-                auto label = std::make_unique<Label>(tkn.text);
-
-                instructions.push_back(std::move(label));
-            } break;
-
-
-            case TokenType::EXIT: {
-                auto exit = this->parse_exit();
-                if (!exit) break;
-
-                instructions.push_back(std::move(exit));
-            } break;
-
-            case TokenType::ADD: {
-                auto add = this->parse_add();
-                if (!add) break;
-
-                instructions.push_back(std::move(add));
-            } break;
-
-            case TokenType::SUB: {
-                auto sub = this->parse_sub();
-                if (!sub) break;
-
-                instructions.push_back(std::move(sub));
-            } break;
-
-            case TokenType::MOV: {
-                auto mov = this->parse_mov();
-                if (!mov) break;
-
-                instructions.push_back(std::move(mov));
-            } break;
-
-            default: {
-                std::string msg = "Unexpected token '" + tkn.text + "' (Not a valid instruction)\n";
-                msg += "\t\tfound at -- " + token_loc(tkn);
-                // crashing the compiler.
-                crash(msg);
-            } break;
-        }
+        auto instr = this->parse(tkn);
+        if (!instr) break;
+        instructions.push_back(std::move(instr));
     }
 
     // returning the parsed code.
@@ -499,13 +492,206 @@ std::unique_ptr<Enum_Var> Parser::parse_enum() {
     }
 
     // consuming the END token.
-    if (this->peek().is_some_and(
+    if (!this->peek().is_some_and(
         [](Token x) { return x.type == TokenType::END; }
     )) {
-        this->advance();
-    }
+        std::string msg = "Missing END token for ENUM declaration\n\tfound at -- ";
+        msg += token_loc(this->tkns[this->cursor - 1]);
+        // crashing the compiler.
+        crash(msg);
+    } 
+   
+    this->advance();
 
     return std::make_unique<Enum_Var>(name, std::move(values));
 }
 
+std::unique_ptr<If> Parser::parse_if() {
+    // checking for a condition.
+    // if the condition is missing, parse_cond() will handle it.
+    auto cond = this->parse_cond();
+
+    // checking for IN keyword.
+    if (!this->peek().is_some_and(
+        [](Token x) { return x.type == TokenType::IN; }
+    )) {
+        std::string msg = "Missing 'IN' keyword for IF instruction\n\tfound at -- ";
+        msg += token_loc(this->tkns[this->cursor - 1]);
+        // crashing the compiler.
+        crash(msg);
+    }
+
+    // consuming the IN keyword.
+    this->advance();
+
+    // consuming the if body.
+    std::vector<std::unique_ptr<Instr>> if_body;
+
+    while (this->peek().is_some_and(
+        [](Token x) { return x.type != TokenType::ELSE && x.type != TokenType::END; }
+    )) {
+        // now it's safe.
+        auto tkn = this->advance().unwrap();
+
+        auto instr = this->parse(tkn);
+        if (!instr) break;
+
+        if_body.push_back(std::move(instr));
+    }
+
+    if (this->peek().is_none()) {
+        std::string msg = "Missing closing token for IF instruction\n\tfound at -- ";
+        msg += token_loc(this->tkns[this->cursor - 1]);
+        // crashing the compiler.
+        crash(msg);
+    }
+
+    // now it's safe.
+    auto tkn = this->advance().unwrap();
+
+    // consuming the else body.
+
+    // if END is encountered, there is no else body.
+    std::vector<std::unique_ptr<Instr>> else_body;
+
+    if (tkn.type == TokenType::END) {
+        return std::make_unique<If>(std::move(cond), std::move(if_body), std::move(else_body));
+    }
+
+    // checking for an else if statement.
+    if (this->peek().is_some_and(
+        [](Token x) { return x.type == TokenType::IF; }
+    )) {
+        this->advance();
+
+        auto instr = this->parse_if();
+
+        else_body.push_back(std::move(instr));
+        return std::make_unique<If>(std::move(cond), std::move(if_body), std::move(else_body));
+    }
+
+    // otherwise, there is an else body.
+    while (this->peek().is_some_and(
+        [](Token x) { return x.type != TokenType::END; }
+    )) {
+        // now it's safe.
+        auto tkn = this->advance().unwrap();
+
+        auto instr = this->parse(tkn);
+        if (!instr) break;
+
+        else_body.push_back(std::move(instr));
+    }
+
+    // consuming the END token.
+    this->advance();
+
+    return std::make_unique<If>(std::move(cond), std::move(if_body), std::move(else_body));
+}
+
+std::unique_ptr<Cond> Parser::parse_cond() {
+
+    // validating the lhs.
+    if (this->peek().is_none()) {
+        std::string msg = "Incomplete condition\n\tfound at -- ";
+        msg += token_loc(this->tkns[this->cursor - 1]);
+        // crashing the compiler.
+        crash(msg);
+    }
+
+    auto lhs_tkn = this->advance().unwrap();
+    std::unique_ptr<Instr> lhs;
+
+    switch (lhs_tkn.type) {
+        case TokenType::VAR: 
+            lhs = std::make_unique<Var>(lhs_tkn.text, "", false);
+            break;
+
+        case TokenType::REG:
+        // TODO: add here other possible values.
+        case TokenType::INT:
+            lhs = std::make_unique<Txt>(lhs_tkn.text);
+            break;
+
+        default: {
+            std::string msg = "Invalid left hand side for condition (Expected variable, register or value)\n";
+            msg += "\tfound -- '" + lhs_tkn.text + "'\n";
+            msg += "\tat    -- " + token_loc(lhs_tkn);
+            // crashing the compiler.
+            crash(msg);
+        } break;
+    }
+
+    if (this->peek().is_none()) {
+        std::string msg = "Missing operator for the condition\n\tfound at -- ";
+        msg += token_loc(this->tkns[this->cursor - 1]);
+        // crashing the compiler.
+        crash(msg);
+    }
+
+    // validating the operator.
+    auto op_tkn = this->advance().unwrap();
+    Cond_Op op;
+
+    switch (op_tkn.type) {
+        case TokenType::EQ:
+            op = Cond_Op::EQU;
+            break;
+
+        default: {
+            std::string msg = "Invalid boolean operator (Only == is valid)\n\tfound at -- ";
+            msg += token_loc(op_tkn);
+            // crashing the compiler.
+            crash(msg);
+        } break;
+    }
+
+    // validating the rhs.
+    if (this->peek().is_none()) {
+        std::string msg = "Missing right hand side of the condition\n\tfound at -- ";
+        msg += token_loc(this->tkns[this->cursor - 1]);
+        // crashing the compiler.
+        crash(msg);
+    }
+
+    auto rhs_tkn = this->advance().unwrap();
+    std::unique_ptr<Instr> rhs;
+
+    switch (lhs_tkn.type) {
+        case TokenType::VAR: 
+            lhs = std::make_unique<Var>(rhs_tkn.text, "", false);
+            break;
+
+        case TokenType::REG:
+        // TODO: add here other possible values.
+        case TokenType::INT:
+            lhs = std::make_unique<Txt>(rhs_tkn.text);
+            break;
+
+        default: {
+            std::string msg = "Invalid right hand side for condition (Expected variable, register or value)\n";
+            msg += "\tfound -- '" + lhs_tkn.text + "'\n";
+            msg += "\tat    -- " + token_loc(rhs_tkn);
+            // crashing the compiler.
+            crash(msg);
+        } break;
+    }
+
+    if (lhs_tkn.type == rhs_tkn.type) {
+        switch (lhs_tkn.type) {
+            // TODO: add here other possible values.
+            case TokenType::INT: {
+                std::string msg = "Invalid condition (Both sides can't be values)\n\tfound at -- ";
+                msg += token_loc(rhs_tkn);
+                // crashing the compiler.
+                crash(msg);
+            } break;
+        
+            default: 
+                break;
+        }
+    }
+ 
+    return std::make_unique<Cond>(op, std::move(lhs), std::move(rhs));
+}
 
