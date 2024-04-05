@@ -151,6 +151,23 @@ Option<Token> Lexer::next() {
                 return Option<Token>::some(tkn);
             } break;
 
+            // boolean eq.
+            case '=': {
+               if (!this->peek().is_some_and(
+                   [](char x) { return x == '='; }
+               )) {
+                   auto tkn = this->token();
+                   std::string msg = "Unexpected character '=' (Unfinished boolean eq)\n";
+                   msg += "\tfound at -- " + token_loc(tkn);
+                   crash(msg);
+               }
+               this->advance();
+
+               auto tkn = this->token();
+               tkn.type = TokenType::EQ;
+               return Option<Token>::some(tkn);
+            } break;
+
             // ignoring spaces.
             case ' ':
                 this->old_cursor++;
@@ -212,6 +229,9 @@ Option<Token> Lexer::next() {
                     else if (tkn.text == "sub")  tkn.type = TokenType::SUB;
                     else if (tkn.text == "mov")  tkn.type = TokenType::MOV;
                     else if (tkn.text == "enum") tkn.type = TokenType::ENUM;
+                    else if (tkn.text == "if")   tkn.type = TokenType::IF;
+                    else if (tkn.text == "in")   tkn.type = TokenType::IN;
+                    else if (tkn.text == "else") tkn.type = TokenType::ELSE;
                     else if (tkn.text == "end")  tkn.type = TokenType::END;
                     else tkn.type = TokenType::NAME;
                     

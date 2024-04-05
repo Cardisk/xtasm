@@ -25,6 +25,8 @@ class Parser {
         std::unique_ptr<Instr> next();
         // Used to parse the #data section.
         std::unique_ptr<Data> parse_data();
+        // Used to parse the next instruction.
+        std::unique_ptr<Instr> parse(Token tkn);
         // Used to parse the #code section.
         std::unique_ptr<Code> parse_code();
         // Used to parse an exit instruction.
@@ -39,6 +41,11 @@ class Parser {
         std::unique_ptr<Sub> parse_sub();
         // Used to parse a mov instruction.
         std::unique_ptr<Mov> parse_mov();
+        // Used to parse an if condition.
+        std::unique_ptr<If> parse_if();
+        // Used to parse conditions.
+        std::unique_ptr<Cond> parse_cond();
+
 
         // LABELS ARE HANDLED INSIDE 'parse_code()' METHOD.
 

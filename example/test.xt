@@ -6,11 +6,19 @@ enum enum_name
     .a
     .b
     .c
+end 
+ 
+#code 
+if .hello == 10 in
+    mov $AX .enum_name.a
+else if .hello == 5 in
+    mov $AX .enum_name.b
 end
 
-#code
-:label
+:start 
     mov  $AX    .enum_name.c
     add  .hello 10
-    sub  .hello 5  
+    sub  .hello 5
+
+:end
     exit .hello  
