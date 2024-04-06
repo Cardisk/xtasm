@@ -129,7 +129,7 @@ class If : public Instr {
 // TODO: implement the rest of the operations.
 enum Cond_Op {
     EQU,
-    // NE,
+    NEQU,
     // LT,
     // GT,
     // LE,

@@ -21,6 +21,7 @@ enum TokenType {
     END,
     // Booleans.
     EQ,
+    NEQ,
     // Instructions.
     EXIT,
     ADD,

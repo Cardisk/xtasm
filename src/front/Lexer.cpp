@@ -157,7 +157,7 @@ Option<Token> Lexer::next() {
                    [](char x) { return x == '='; }
                )) {
                    auto tkn = this->token();
-                   std::string msg = "Unexpected character '=' (Unfinished boolean eq)\n";
+                   std::string msg = "Unexpected character '=' (Unfinished boolean equals)\n";
                    msg += "\tfound at -- " + token_loc(tkn);
                    crash(msg);
                }
@@ -165,6 +165,23 @@ Option<Token> Lexer::next() {
 
                auto tkn = this->token();
                tkn.type = TokenType::EQ;
+               return Option<Token>::some(tkn);
+            } break;
+
+            // boolean not eq.
+            case '!': {
+               if (!this->peek().is_some_and(
+                   [](char x) { return x == '='; }
+               )) {
+                   auto tkn = this->token();
+                   std::string msg = "Unexpected character '!' (Unfinished boolean not equals)\n";
+                   msg += "\tfound at -- " + token_loc(tkn);
+                   crash(msg);
+               }
+               this->advance();
+
+               auto tkn = this->token();
+               tkn.type = TokenType::NEQ;
                return Option<Token>::some(tkn);
             } break;
 

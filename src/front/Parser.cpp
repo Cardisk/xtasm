@@ -1,8 +1,6 @@
 #include "Parser.h"
 #include "Token.h"
 
-#include <iostream>
-
 #include <memory>
 #include <string>
 #include <vector>
@@ -638,8 +636,12 @@ std::unique_ptr<Cond> Parser::parse_cond() {
             op = Cond_Op::EQU;
             break;
 
+        case TokenType::NEQ:
+            op = Cond_Op::NEQU;
+            break;
+
         default: {
-            std::string msg = "Invalid boolean operator (Only == is valid)\n\tfound at -- ";
+            std::string msg = "Invalid boolean operator (Only == and != are valid)\n\tfound at -- ";
             msg += token_loc(op_tkn);
             // crashing the compiler.
             crash(msg);
