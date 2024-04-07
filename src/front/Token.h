@@ -22,6 +22,10 @@ enum TokenType {
     // Booleans.
     EQ,
     NEQ,
+    GRT,
+    GEQ,
+    LT,
+    LEQ,
     // Instructions.
     EXIT,
     ADD,

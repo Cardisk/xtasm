@@ -126,14 +126,19 @@ class If : public Instr {
 };
 
 // Enum representing the condition operations.
-// TODO: implement the rest of the operations.
 enum Cond_Op {
+    // ==
     EQU,
+    // !=
     NEQU,
-    // LT,
-    // GT,
-    // LE,
-    // GE
+    // <
+    LTH,
+    // <=
+    LTE,
+    // >
+    GT,
+    // >=
+    GTE,
 };
 
 class Cond : public Instr {

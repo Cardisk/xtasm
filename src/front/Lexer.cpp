@@ -185,6 +185,40 @@ Option<Token> Lexer::next() {
                return Option<Token>::some(tkn);
             } break;
 
+            // boolean greater than (equals).
+            case '>': {
+               if (this->peek().is_some_and(
+                   [](char x) { return x == '='; }
+               )) {
+                   this->advance();
+                   auto tkn = this->token();
+                   tkn.type = TokenType::GEQ;
+                   return Option<Token>::some(tkn);
+               }
+               this->advance();
+
+               auto tkn = this->token();
+               tkn.type = TokenType::GRT;
+               return Option<Token>::some(tkn);
+            } break;
+            
+            // boolean less than (equals).
+            case '<': {
+               if (this->peek().is_some_and(
+                   [](char x) { return x == '='; }
+               )) {
+                   this->advance();
+                   auto tkn = this->token();
+                   tkn.type = TokenType::LEQ;
+                   return Option<Token>::some(tkn);
+               }
+               this->advance();
+
+               auto tkn = this->token();
+               tkn.type = TokenType::LT;
+               return Option<Token>::some(tkn);
+            } break;
+
             // ignoring spaces.
             case ' ':
                 this->old_cursor++;

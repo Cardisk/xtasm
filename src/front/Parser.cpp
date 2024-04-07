@@ -640,8 +640,24 @@ std::unique_ptr<Cond> Parser::parse_cond() {
             op = Cond_Op::NEQU;
             break;
 
+        case TokenType::GRT:
+            op = Cond_Op::GT;
+            break;
+
+        case TokenType::GEQ:
+            op = Cond_Op::GTE;
+            break;
+
+        case TokenType::LT:
+            op = Cond_Op::LTH;
+            break;
+
+        case TokenType::LEQ:
+            op = Cond_Op::LTE;
+            break;
+    
         default: {
-            std::string msg = "Invalid boolean operator (Only == and != are valid)\n\tfound at -- ";
+            std::string msg = "Invalid boolean operator (Only == , != , > , >= are valid)\n\tfound at -- ";
             msg += token_loc(op_tkn);
             // crashing the compiler.
             crash(msg);
