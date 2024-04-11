@@ -113,14 +113,23 @@ class Enum_Var : public Instr {
         std::vector<std::unique_ptr<Instr>> values;
 };
 
+enum Bool_Op {
+    // &&
+    BAND,
+    // ||
+    BOR,
+};
+
 class If : public Instr {
     public:
-        explicit If(std::unique_ptr<Instr> condition, 
+        explicit If(std::vector<std::unique_ptr<Instr>> condition,
+                    std::vector<Bool_Op> bool_ops,
                     std::vector<std::unique_ptr<Instr>> if_body, 
                     std::vector<std::unique_ptr<Instr>> else_body) 
-            : condition(std::move(condition)), if_body(std::move(if_body)), else_body(std::move(else_body)) {}
+            : condition(std::move(condition)), bool_ops(bool_ops), if_body(std::move(if_body)), else_body(std::move(else_body)) {}
 
-        std::unique_ptr<Instr> condition;
+        std::vector<std::unique_ptr<Instr>> condition;
+        std::vector<Bool_Op> bool_ops;
         std::vector<std::unique_ptr<Instr>> if_body;
         std::vector<std::unique_ptr<Instr>> else_body;
 };

@@ -26,6 +26,9 @@ enum TokenType {
     GEQ,
     LT,
     LEQ,
+    // Logical ports.
+    AND,
+    OR,
     // Instructions.
     EXIT,
     ADD,

@@ -219,6 +219,40 @@ Option<Token> Lexer::next() {
                return Option<Token>::some(tkn);
             } break;
 
+            // logical and.
+            case '&': {
+                if (!this->peek().is_some_and(
+                     [](char x) { return x == '&'; }
+                )) {
+                     auto tkn = this->token();
+                     std::string msg = "Unexpected character '&' (Unfinished logical and)\n";
+                     msg += "\tfound at -- " + token_loc(tkn);
+                     crash(msg);
+                }
+                this->advance();
+    
+                auto tkn = this->token();
+                tkn.type = TokenType::AND;
+                return Option<Token>::some(tkn);
+            } break;
+
+            // logical or.
+            case '|': {
+                if (!this->peek().is_some_and(
+                     [](char x) { return x == '|'; }
+                )) {
+                     auto tkn = this->token();
+                     std::string msg = "Unexpected character '|' (Unfinished logical or)\n";
+                     msg += "\tfound at -- " + token_loc(tkn);
+                     crash(msg);
+                }
+                this->advance();
+    
+                auto tkn = this->token();
+                tkn.type = TokenType::OR;
+                return Option<Token>::some(tkn);
+            } break;
+
             // ignoring spaces.
             case ' ':
                 this->old_cursor++;
