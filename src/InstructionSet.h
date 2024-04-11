@@ -120,6 +120,7 @@ enum Bool_Op {
     BOR,
 };
 
+// if visitor is in charge of handling the jumps between labels. 
 class If : public Instr {
     public:
         explicit If(std::vector<std::unique_ptr<Instr>> condition,
