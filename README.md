@@ -10,8 +10,8 @@ with which you can implement some basic stuff.
 
 ## Development Goals
 
-- [ ] Simple syntax that doesn't go against the user
-- [ ] Good error reporting during lexing and parsing
+- [X] Simple syntax that doesn't go against the user
+- [X] Good error reporting during lexing and parsing
 - [ ] Native execution (x86 && arm)
 - [ ] Both 32 and 64 bit
 - [ ] Self hosted (last goal)
