@@ -9,6 +9,11 @@ enum enum_name
 end 
  
 #code 
+while .hello != 5 in
+    mov $AX .enum_name.a
+    sub .hello 1
+end
+
 if .hello == 10 || .world != 5 in
     mov $AX .enum_name.a
 else if .hello == 5 in

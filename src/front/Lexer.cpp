@@ -309,15 +309,16 @@ Option<Token> Lexer::next() {
                     
                     if      (tkn.text.starts_with('.')) tkn.type = TokenType::VAR;
                     // TODO: put here all the known instructions.
-                    else if (tkn.text == "exit") tkn.type = TokenType::EXIT;
-                    else if (tkn.text == "add")  tkn.type = TokenType::ADD;
-                    else if (tkn.text == "sub")  tkn.type = TokenType::SUB;
-                    else if (tkn.text == "mov")  tkn.type = TokenType::MOV;
-                    else if (tkn.text == "enum") tkn.type = TokenType::ENUM;
-                    else if (tkn.text == "if")   tkn.type = TokenType::IF;
-                    else if (tkn.text == "in")   tkn.type = TokenType::IN;
-                    else if (tkn.text == "else") tkn.type = TokenType::ELSE;
-                    else if (tkn.text == "end")  tkn.type = TokenType::END;
+                    else if (tkn.text == "exit")  tkn.type = TokenType::EXIT;
+                    else if (tkn.text == "add")   tkn.type = TokenType::ADD;
+                    else if (tkn.text == "sub")   tkn.type = TokenType::SUB;
+                    else if (tkn.text == "mov")   tkn.type = TokenType::MOV;
+                    else if (tkn.text == "enum")  tkn.type = TokenType::ENUM;
+                    else if (tkn.text == "while") tkn.type = TokenType::WHILE;
+                    else if (tkn.text == "if")    tkn.type = TokenType::IF;
+                    else if (tkn.text == "in")    tkn.type = TokenType::IN;
+                    else if (tkn.text == "else")  tkn.type = TokenType::ELSE;
+                    else if (tkn.text == "end")   tkn.type = TokenType::END;
                     else tkn.type = TokenType::NAME;
                     
                     return Option<Token>::some(tkn);

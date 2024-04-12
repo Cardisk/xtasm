@@ -109,6 +109,9 @@ std::unique_ptr<Instr> Parser::parse(Token tkn) {
         case TokenType::LABEL: 
             return std::make_unique<Label>(tkn.text);
 
+        case TokenType::WHILE: 
+            return this->parse_while();
+
         case TokenType::IF: 
             return this->parse_if();
 
@@ -628,6 +631,94 @@ std::unique_ptr<If> Parser::parse_if() {
     this->advance();
 
     return std::make_unique<If>(std::move(conditions), bool_ops, std::move(if_body), std::move(else_body));
+}
+
+std::unique_ptr<While> Parser::parse_while() {
+
+    std::vector<std::unique_ptr<Instr>> conditions;
+    std::vector<Bool_Op> bool_ops;
+
+    while (!this->peek().is_some_and(
+        [](Token x) { return x.type == TokenType::IN; }
+    )) {
+        auto cond = this->parse_cond();
+
+        conditions.push_back(std::move(cond));
+
+        if (this->peek().is_none()) {
+            std::string msg = "Missing 'IN' keyword for IF instruction\n\tfound at -- ";
+            msg += token_loc(this->tkns[this->cursor - 1]);
+            // crashing the compiler.
+            crash(msg);
+        }
+
+        // checking for a boolean operator.
+        if (this->peek().is_some_and(
+            [](Token x) { return x.type == TokenType::AND || x.type == TokenType::OR; }
+        )) {
+            auto tkn = this->advance().unwrap();
+
+            Bool_Op op;
+            switch (tkn.type) {
+                case TokenType::AND:
+                    op = Bool_Op::BAND;
+                    break;
+
+                case TokenType::OR:
+                    op = Bool_Op::BOR;
+                    break;
+
+                default: {
+                    std::string msg = "Invalid boolean operator (Only && , || are valid)\n\tfound at -- ";
+                    msg += token_loc(tkn);
+                    // crashing the compiler.
+                    crash(msg);
+                } break;
+            }
+
+            bool_ops.push_back(op);
+        }
+    }
+
+    // checking for IN keyword.
+    if (!this->peek().is_some_and(
+        [](Token x) { return x.type == TokenType::IN; }
+    )) {
+        std::string msg = "Missing 'IN' keyword for WHILE instruction\n\tfound at -- ";
+        msg += token_loc(this->tkns[this->cursor - 1]);
+        // crashing the compiler.
+        crash(msg);
+    }
+
+    // consuming the IN keyword.
+    this->advance();
+
+    // consuming the while body.
+    std::vector<std::unique_ptr<Instr>> body;
+
+    while (!this->peek().is_some_and(
+        [](Token x) { return x.type == TokenType::END; }
+    )) {
+        // now it's safe.
+        auto tkn = this->advance().unwrap();
+
+        auto instr = this->parse(tkn);
+        if (!instr) break;
+
+        body.push_back(std::move(instr));
+    }
+
+    if (this->peek().is_none()) {
+        std::string msg = "Missing closing token for WHILE instruction\n\tfound at -- ";
+        msg += token_loc(this->tkns[this->cursor - 1]);
+        // crashing the compiler.
+        crash(msg);
+    }
+    
+    // consuming the END token.
+    this->advance();
+
+    return std::make_unique<While>(std::move(conditions), bool_ops, std::move(body));
 }
 
 std::unique_ptr<Cond> Parser::parse_cond() {

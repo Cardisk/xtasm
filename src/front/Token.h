@@ -13,6 +13,8 @@ enum TokenType {
     DATA,
     // Registers.
     REG,
+    // Loops.
+    WHILE,
     // Control flow.
     LABEL,
     IF,

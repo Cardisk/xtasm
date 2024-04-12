@@ -120,16 +120,33 @@ enum Bool_Op {
     BOR,
 };
 
+class While : public Instr {
+    public:
+        explicit While(std::vector<std::unique_ptr<Instr>> conditions, 
+                       std::vector<Bool_Op> bool_ops, 
+                       std::vector<std::unique_ptr<Instr>> body) 
+            : conditions(std::move(conditions)), 
+              bool_ops(bool_ops), 
+              body(std::move(body)) {}
+
+        std::vector<std::unique_ptr<Instr>> conditions;
+        std::vector<Bool_Op> bool_ops;
+        std::vector<std::unique_ptr<Instr>> body;
+};
+
 // if visitor is in charge of handling the jumps between labels. 
 class If : public Instr {
     public:
-        explicit If(std::vector<std::unique_ptr<Instr>> condition,
+        explicit If(std::vector<std::unique_ptr<Instr>> conditions,
                     std::vector<Bool_Op> bool_ops,
                     std::vector<std::unique_ptr<Instr>> if_body, 
                     std::vector<std::unique_ptr<Instr>> else_body) 
-            : condition(std::move(condition)), bool_ops(bool_ops), if_body(std::move(if_body)), else_body(std::move(else_body)) {}
+            : conditions(std::move(conditions)), 
+              bool_ops(bool_ops),
+              if_body(std::move(if_body)), 
+              else_body(std::move(else_body)) {}
 
-        std::vector<std::unique_ptr<Instr>> condition;
+        std::vector<std::unique_ptr<Instr>> conditions;
         std::vector<Bool_Op> bool_ops;
         std::vector<std::unique_ptr<Instr>> if_body;
         std::vector<std::unique_ptr<Instr>> else_body;

@@ -4,35 +4,36 @@
 
 std::string ttype_str(TokenType type) {
     // handling all the types.
-    static_assert(TokenType::COUNT == 26, "ERROR: ttype_str doesnt handle all the possible tokens!\n");
+    static_assert(TokenType::COUNT == 27, "ERROR: ttype_str doesnt handle all the possible tokens!\n");
 
     switch (type) {
         case TokenType::INVALID: return "INVALID";
-        case TokenType::CODE: return "CODE";
-        case TokenType::DATA: return "DATA";
-        case TokenType::REG: return "REG";
-        case TokenType::LABEL: return "LABEL";
-        case TokenType::IF: return "IF";
-        case TokenType::IN: return "IN";
-        case TokenType::ELSE: return "ELSE";
-        case TokenType::END: return "END";
-        case TokenType::EQ: return "EQ";
-        case TokenType::NEQ: return "NEQ";
-        case TokenType::GRT: return "GRT";
-        case TokenType::GEQ: return "GEQ";
-        case TokenType::LT: return "LT";
-        case TokenType::LEQ: return "LEQ";
-        case TokenType::AND: return "AND";
-        case TokenType::OR: return "OR";
-        case TokenType::EXIT: return "EXIT";
-        case TokenType::ADD: return "ADD";
-        case TokenType::SUB: return "SUB";
-        case TokenType::MOV: return "MOV";
-        case TokenType::NAME: return "NAME";
-        case TokenType::ENUM: return "ENUM";
-        case TokenType::VAR: return "VAR";
-        case TokenType::QMARK: return "QMARK";
-        case TokenType::INT: return "INT";
+        case TokenType::CODE   : return "CODE";
+        case TokenType::DATA   : return "DATA";
+        case TokenType::REG    : return "REG";
+        case TokenType::WHILE  : return "WHILE";
+        case TokenType::LABEL  : return "LABEL";
+        case TokenType::IF     : return "IF";
+        case TokenType::IN     : return "IN";
+        case TokenType::ELSE   : return "ELSE";
+        case TokenType::END    : return "END";
+        case TokenType::EQ     : return "EQ";
+        case TokenType::NEQ    : return "NEQ";
+        case TokenType::GRT    : return "GRT";
+        case TokenType::GEQ    : return "GEQ";
+        case TokenType::LT     : return "LT";
+        case TokenType::LEQ    : return "LEQ";
+        case TokenType::AND    : return "AND";
+        case TokenType::OR     : return "OR";
+        case TokenType::EXIT   : return "EXIT";
+        case TokenType::ADD    : return "ADD";
+        case TokenType::SUB    : return "SUB";
+        case TokenType::MOV    : return "MOV";
+        case TokenType::NAME   : return "NAME";
+        case TokenType::ENUM   : return "ENUM";
+        case TokenType::VAR    : return "VAR";
+        case TokenType::QMARK  : return "QMARK";
+        case TokenType::INT    : return "INT";
         // case TokenType::DEC: return "DEC";
         default:
             crash("`ttype_str` unreachable branch. This could be a bug into the Lexer.");
