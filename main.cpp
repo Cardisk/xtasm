@@ -66,7 +66,11 @@ int main(int argc, char** argv) {
     std::string arg;
     do {
         arg = shift(argc, argv);
-        if (arg == "-dbgl") debug_tkns = true;
+        if (arg == "-all") {
+            debug_tkns = true;
+            debug_parser = true;
+        }
+        else if (arg == "-dbgl") debug_tkns = true;
         else if (arg == "-dbgp") debug_parser = true;
     } while(argc > 0 && arg.starts_with("-"));
 
