@@ -17,6 +17,8 @@ enum TokenType {
     WHILE,
     FOR,
     SEMICOLON,
+    LOOP,
+    BREAK,
     // Control flow.
     LABEL,
     IF,

@@ -41,12 +41,16 @@ class Parser {
         std::unique_ptr<Sub> parse_sub();
         // Used to parse a mov instruction.
         std::unique_ptr<Mov> parse_mov();
+        // Used to parse a break instruction.
+        std::unique_ptr<Break> parse_break();
         // Used to parse an if condition.
         std::unique_ptr<If> parse_if();
         // Used to parse a while loop.
         std::unique_ptr<While> parse_while();
         // Used to parse a for loop.
         std::unique_ptr<For> parse_for();
+        // Used to parse an infinte loop.
+        std::unique_ptr<Loop> parse_loop();
         // Used to parse conditions.
         std::unique_ptr<Cond> parse_cond();
 

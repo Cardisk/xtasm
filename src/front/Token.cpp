@@ -4,7 +4,7 @@
 
 std::string ttype_str(TokenType type) {
     // handling all the types.
-    static_assert(TokenType::COUNT == 29, "ERROR: ttype_str doesnt handle all the possible tokens!\n");
+    static_assert(TokenType::COUNT == 31, "ERROR: ttype_str doesnt handle all the possible tokens!\n");
 
     switch (type) {
         case TokenType::INVALID  : return "INVALID";
@@ -14,6 +14,8 @@ std::string ttype_str(TokenType type) {
         case TokenType::WHILE    : return "WHILE";
         case TokenType::FOR      : return "FOR";
         case TokenType::SEMICOLON: return "SEMICOLON";
+        case TokenType::LOOP     : return "LOOP";
+        case TokenType::BREAK    : return "BREAK";
         case TokenType::LABEL    : return "LABEL";
         case TokenType::IF       : return "IF";
         case TokenType::IN       : return "IN";

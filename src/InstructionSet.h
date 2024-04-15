@@ -11,6 +11,13 @@
 // Forward declaration for the Visitor class.
 class Instr;
 
+enum Bool_Op {
+    // &&
+    BAND,
+    // ||
+    BOR,
+};
+
 // Design Pattern: Visitor.
 class Visitor {
     public:
@@ -22,6 +29,21 @@ class Visitor {
         virtual std::string compile_add(std::string dst, std::string src) { return ""; }
         virtual std::string compile_sub(std::string dst, std::string src) { return ""; }
         virtual std::string compile_mov(std::string dst, std::string src) { return ""; }
+        // TODO: the visitor class has a current_loop attribute
+        // which this method use as a reference to know where to jump.
+        // XXX: example: 
+        //          current_loop = "for10"
+        //          break -> jmp for10_end
+        virtual std::string compile_break() { return ""; }
+        virtual std::string compile_enum(std::vector<std::unique_ptr<Instr>> values) { return ""; }
+        virtual std::string compile_while(std::vector<std::unique_ptr<Instr>> conditions, 
+                                          std::vector<Bool_Op> bool_ops, 
+                                          std::vector<std::unique_ptr<Instr>> body) { return ""; }
+        virtual std::string compile_for(std::unique_ptr<Instr> range_left, 
+                                        std::unique_ptr<Instr> range_right,
+                                        std::unique_ptr<Instr> increment,
+                                        std::vector<std::unique_ptr<Instr>> body) { return ""; }
+        virtual std::string compile_loop(std::vector<std::unique_ptr<Instr>> body) { return ""; }
         virtual std::string compile_var(std::string name, std::string value, bool is_decl) { return ""; }
 };
 
@@ -103,21 +125,21 @@ class Mov : public Instr {
         std::unique_ptr<Instr> src;
 };
 
+class Break : public Instr {
+    public:
+        explicit Break() {}
+
+        std::string compile(Visitor &v) { return v.compile_break(); }
+};
+
 class Enum_Var : public Instr {
     public:
         explicit Enum_Var(std::string name, std::vector<std::unique_ptr<Instr>> values) : name(name), values(std::move(values)) {}
 
-        std::string compile(Visitor &v) { return ""; }
+        std::string compile(Visitor &v) { return v.compile_enum(std::move(this->values)); }
 
         std::string name;
         std::vector<std::unique_ptr<Instr>> values;
-};
-
-enum Bool_Op {
-    // &&
-    BAND,
-    // ||
-    BOR,
 };
 
 class While : public Instr {
@@ -128,6 +150,8 @@ class While : public Instr {
             : conditions(std::move(conditions)), 
               bool_ops(bool_ops), 
               body(std::move(body)) {}
+
+        std::string compile(Visitor &v) { return v.compile_while(std::move(conditions), std::move(bool_ops), std::move(body)); }
 
         std::vector<std::unique_ptr<Instr>> conditions;
         std::vector<Bool_Op> bool_ops;
@@ -145,9 +169,23 @@ class For : public Instr {
               increment(std::move(increment)), 
               body(std::move(body)) {}
 
+        std::string compile(Visitor &v) { return v.compile_for(std::move(range_left), 
+                                                               std::move(range_right), 
+                                                               std::move(increment), 
+                                                               std::move(body)); }
+
         std::unique_ptr<Instr> range_left;
         std::unique_ptr<Instr> range_right;
         std::unique_ptr<Instr> increment;
+        std::vector<std::unique_ptr<Instr>> body;
+};
+
+class Loop : public Instr {
+    public:
+        explicit Loop(std::vector<std::unique_ptr<Instr>> body) : body(std::move(body)) {}
+
+        std::string compile(Visitor &v) { return v.compile_loop(std::move(this->body)); }
+
         std::vector<std::unique_ptr<Instr>> body;
 };
 

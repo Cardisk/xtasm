@@ -322,6 +322,8 @@ Option<Token> Lexer::next() {
                     else if (tkn.text == "enum")  tkn.type = TokenType::ENUM;
                     else if (tkn.text == "while") tkn.type = TokenType::WHILE;
                     else if (tkn.text == "for")   tkn.type = TokenType::FOR;
+                    else if (tkn.text == "loop")  tkn.type = TokenType::LOOP;
+                    else if (tkn.text == "break") tkn.type = TokenType::BREAK;
                     else if (tkn.text == "if")    tkn.type = TokenType::IF;
                     else if (tkn.text == "in")    tkn.type = TokenType::IN;
                     else if (tkn.text == "else")  tkn.type = TokenType::ELSE;

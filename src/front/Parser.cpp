@@ -115,6 +115,9 @@ std::unique_ptr<Instr> Parser::parse(Token tkn) {
         case TokenType::FOR:
             return this->parse_for();
 
+        case TokenType::LOOP:
+            return this->parse_loop();
+
         case TokenType::IF: 
             return this->parse_if();
 
@@ -129,6 +132,9 @@ std::unique_ptr<Instr> Parser::parse(Token tkn) {
 
         case TokenType::MOV: 
             return this->parse_mov();
+
+        case TokenType::BREAK:
+            return this->parse_break();
 
         default: {
             std::string msg = "Unexpected token '" + tkn.text + "' (Not a valid instruction)\n";
@@ -457,10 +463,14 @@ std::unique_ptr<Mov> Parser::parse_mov() {
     return std::make_unique<Mov>(std::move(dst), std::move(src));
 }
 
+std::unique_ptr<Break> Parser::parse_break() {
+    return std::make_unique<Break>();
+}
+
 std::unique_ptr<Enum_Var> Parser::parse_enum() {
     // enum error.
     if (this->peek().is_none()) {
-        std::string msg = "Missing values for ENUM instruction\n\tfound at -- ";
+        std::string msg = "Missing name for ENUM instruction\n\tfound at -- ";
         msg += token_loc(this->tkns[this->cursor - 1]);
         // crashing the compiler.
         crash(msg);
@@ -470,8 +480,8 @@ std::unique_ptr<Enum_Var> Parser::parse_enum() {
 
     std::vector<std::unique_ptr<Instr>> values;
     int enum_index = 0;
-    while (this->peek().is_some_and(
-        [](Token x) { return x.type != TokenType::END; }
+    while (!this->peek().is_some_and(
+        [](Token x) { return x.type == TokenType::END; }
     )) {
         auto tkn_name = this->advance().unwrap();
 
@@ -488,8 +498,11 @@ std::unique_ptr<Enum_Var> Parser::parse_enum() {
             enum_index = std::stoi(this->advance().unwrap().text);
         }
 
+        // crafting a name like '.enum_name.var_name'.
+        auto var_name = name + tkn_name.text;
+
         values.push_back(std::make_unique<Var>(
-            tkn_name.text, std::to_string(enum_index), true
+            var_name, std::to_string(enum_index), true
         ));
         
         enum_index++;
@@ -871,6 +884,35 @@ std::unique_ptr<For> Parser::parse_for() {
     this->advance();
     
     return std::make_unique<For>(std::move(range_left), std::move(range_right), std::move(increment), std::move(body));
+}
+
+std::unique_ptr<Loop> Parser::parse_loop() {
+
+    std::vector<std::unique_ptr<Instr>> body;
+
+    while (!this->peek().is_some_and(
+        [](Token x) { return x.type == TokenType::END; }
+    )) {
+        // now it's safe.
+        auto tkn = this->advance().unwrap();
+
+        auto instr = this->parse(tkn);
+        if (!instr) break;
+
+        body.push_back(std::move(instr));
+    }
+
+    if (this->peek().is_none()) {
+        std::string msg = "Missing closing token for FOR instruction\n\tfound at -- ";
+        msg += token_loc(this->tkns[this->cursor - 1]);
+        // crashing the compiler.
+        crash(msg);
+    }
+    
+    // consuming the END token.
+    this->advance();
+
+    return std::make_unique<Loop>(std::move(body));
 }
 
 std::unique_ptr<Cond> Parser::parse_cond() {

@@ -9,6 +9,13 @@ enum enum_name
 end 
  
 #code 
+loop 
+    add .hello 1
+    if .hello == 15 in
+        break
+    end
+end
+
 for 0;10;1 in
     add .hello 1
 end
