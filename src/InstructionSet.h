@@ -134,6 +134,23 @@ class While : public Instr {
         std::vector<std::unique_ptr<Instr>> body;
 };
 
+class For : public Instr {
+    public:
+        explicit For(std::unique_ptr<Instr> range_left, 
+                     std::unique_ptr<Instr> range_right,
+                     std::unique_ptr<Instr> increment,
+                     std::vector<std::unique_ptr<Instr>> body) 
+            : range_left(std::move(range_left)), 
+              range_right(std::move(range_right)), 
+              increment(std::move(increment)), 
+              body(std::move(body)) {}
+
+        std::unique_ptr<Instr> range_left;
+        std::unique_ptr<Instr> range_right;
+        std::unique_ptr<Instr> increment;
+        std::vector<std::unique_ptr<Instr>> body;
+};
+
 // if visitor is in charge of handling the jumps between labels. 
 class If : public Instr {
     public:

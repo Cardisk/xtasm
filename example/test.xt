@@ -9,6 +9,10 @@ enum enum_name
 end 
  
 #code 
+for 0;10;1 in
+    add .hello 1
+end
+
 while .hello != 5 in
     mov $AX .enum_name.a
     sub .hello 1

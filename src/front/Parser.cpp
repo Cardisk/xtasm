@@ -112,6 +112,9 @@ std::unique_ptr<Instr> Parser::parse(Token tkn) {
         case TokenType::WHILE: 
             return this->parse_while();
 
+        case TokenType::FOR:
+            return this->parse_for();
+
         case TokenType::IF: 
             return this->parse_if();
 
@@ -719,6 +722,155 @@ std::unique_ptr<While> Parser::parse_while() {
     this->advance();
 
     return std::make_unique<While>(std::move(conditions), bool_ops, std::move(body));
+}
+
+std::unique_ptr<For> Parser::parse_for() {
+
+    std::unique_ptr<Instr> range_left;
+    std::unique_ptr<Instr> range_right;
+    std::unique_ptr<Instr> increment;
+    std::vector<std::unique_ptr<Instr>> body;
+
+    // checking for a valid range_left.
+    if (this->peek().is_some()) {
+        // now it's safe.
+        auto tkn = this->advance().unwrap();
+
+        // switching all the possible values.
+        switch (tkn.type) {
+            case TokenType::VAR: {
+                range_left = std::make_unique<Var>(tkn.text, "", false);
+            } break;
+
+            case TokenType::INT:
+            case TokenType::REG: {
+                range_left = std::make_unique<Txt>(tkn.text);
+            } break;
+
+            default: {
+                std::string msg = "Invalid range lower bound for FOR instruction\n";
+                msg += "\tfound -- '" + tkn.text + "'\n";
+                msg += "\tat    -- " + token_loc(tkn);
+                // crashing the compiler.
+                crash(msg);
+            } break;
+        }
+    }
+
+    // checking for range separator.
+    if (!this->peek().is_some_and(
+        [](Token x) { return x.type == TokenType::SEMICOLON; }
+    )) {
+        std::string msg = "Missing ';' separator inside FOR instruction\n\tfound at -- ";
+        msg += token_loc(this->tkns[this->cursor - 1]);
+        // crashing the compiler.
+        crash(msg);
+    }
+    
+    // consuming the separator.
+    this->advance();
+
+    // checking for a valid range_right.
+    if (this->peek().is_some()) {
+        // now it's safe.
+        auto tkn = this->advance().unwrap();
+
+        // switching all the possible values.
+        switch (tkn.type) {
+            case TokenType::VAR: {
+                range_right = std::make_unique<Var>(tkn.text, "", false);
+            } break;
+
+            case TokenType::INT:
+            case TokenType::REG: {
+                range_right = std::make_unique<Txt>(tkn.text);
+            } break;
+
+            default: {
+                std::string msg = "Invalid range upper bound for FOR instruction\n";
+                msg += "\tfound -- '" + tkn.text + "'\n";
+                msg += "\tat    -- " + token_loc(tkn);
+                // crashing the compiler.
+                crash(msg);
+            } break;
+        }
+    }
+
+    // checking for range separator.
+    if (!this->peek().is_some_and(
+        [](Token x) { return x.type == TokenType::SEMICOLON; }
+    )) {
+        std::string msg = "Missing ';' separator inside FOR instruction\n\tfound at -- ";
+        msg += token_loc(this->tkns[this->cursor - 1]);
+        // crashing the compiler.
+        crash(msg);
+    }
+
+    // consuming the separator.
+    this->advance();
+
+    // checking for a valid range increment.
+    if (this->peek().is_some()) {
+        // now it's safe.
+        auto tkn = this->advance().unwrap();
+
+        // switching all the possible values.
+        switch (tkn.type) {
+            case TokenType::VAR: {
+                increment = std::make_unique<Var>(tkn.text, "", false);
+            } break;
+
+            case TokenType::INT:
+            case TokenType::REG: {
+                increment = std::make_unique<Txt>(tkn.text);
+            } break;
+
+            default: {
+                std::string msg = "Invalid range increment for FOR instruction\n";
+                msg += "\tfound -- '" + tkn.text + "'\n";
+                msg += "\tat    -- " + token_loc(tkn);
+                // crashing the compiler.
+                crash(msg);
+            } break;
+        }
+    }
+
+    // checking for IN keyword.
+    if (!this->peek().is_some_and(
+        [](Token x) { return x.type == TokenType::IN; }
+    )) {
+        std::string msg = "Missing 'IN' keyword for FOR instruction\n\tfound at -- ";
+        msg += token_loc(this->tkns[this->cursor - 1]);
+        // crashing the compiler.
+        crash(msg);
+    }
+    
+    // consuming the IN keyword.
+    this->advance();
+
+    while (!this->peek().is_some_and(
+        [](Token x) { return x.type == TokenType::END; }
+    )) {
+        // now it's safe.
+        auto tkn = this->advance().unwrap();
+
+        auto instr = this->parse(tkn);
+        if (!instr) break;
+
+        body.push_back(std::move(instr));
+    }
+
+    if (this->peek().is_none()) {
+        std::string msg = "Missing closing token for FOR instruction\n\tfound at -- ";
+        msg += token_loc(this->tkns[this->cursor - 1]);
+        // crashing the compiler.
+        crash(msg);
+    }
+    
+    // consuming the END token.
+    this->advance();
+    
+    return std::make_unique<For>(std::move(range_left), std::move(range_right), std::move(increment), std::move(body));
 }
 
 std::unique_ptr<Cond> Parser::parse_cond() {

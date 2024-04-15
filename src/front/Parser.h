@@ -45,6 +45,8 @@ class Parser {
         std::unique_ptr<If> parse_if();
         // Used to parse a while loop.
         std::unique_ptr<While> parse_while();
+        // Used to parse a for loop.
+        std::unique_ptr<For> parse_for();
         // Used to parse conditions.
         std::unique_ptr<Cond> parse_cond();
 

@@ -135,6 +135,12 @@ Option<Token> Lexer::next() {
                 return Option<Token>::some(tkn);
             } break;
 
+            case ';': {
+                auto tkn = this->token();
+                tkn.type = TokenType::SEMICOLON;
+                return Option<Token>::some(tkn);
+            } break;
+
             // label definition.
             case ':': {
                 // consume the token.
@@ -315,6 +321,7 @@ Option<Token> Lexer::next() {
                     else if (tkn.text == "mov")   tkn.type = TokenType::MOV;
                     else if (tkn.text == "enum")  tkn.type = TokenType::ENUM;
                     else if (tkn.text == "while") tkn.type = TokenType::WHILE;
+                    else if (tkn.text == "for")   tkn.type = TokenType::FOR;
                     else if (tkn.text == "if")    tkn.type = TokenType::IF;
                     else if (tkn.text == "in")    tkn.type = TokenType::IN;
                     else if (tkn.text == "else")  tkn.type = TokenType::ELSE;

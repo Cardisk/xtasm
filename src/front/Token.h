@@ -15,6 +15,8 @@ enum TokenType {
     REG,
     // Loops.
     WHILE,
+    FOR,
+    SEMICOLON,
     // Control flow.
     LABEL,
     IF,
