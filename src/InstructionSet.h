@@ -48,6 +48,9 @@ class Visitor {
 
     private:
         uint_t if_counter = 0;
+        uint_t while_counter = 0;
+        uint_t for_counter = 0;
+        uint_t loop_counter = 0;
 };
 
 // Instruction set.
