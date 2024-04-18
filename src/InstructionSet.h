@@ -45,6 +45,9 @@ class Visitor {
                                         std::vector<std::unique_ptr<Instr>> body) { return ""; }
         virtual std::string compile_loop(std::vector<std::unique_ptr<Instr>> body) { return ""; }
         virtual std::string compile_var(std::string name, std::string value, bool is_decl) { return ""; }
+
+    private:
+        uint_t if_counter = 0;
 };
 
 // Instruction set.
