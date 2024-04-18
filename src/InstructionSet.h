@@ -29,11 +29,6 @@ class Visitor {
         virtual std::string compile_add(std::string dst, std::string src) { return ""; }
         virtual std::string compile_sub(std::string dst, std::string src) { return ""; }
         virtual std::string compile_mov(std::string dst, std::string src) { return ""; }
-        // TODO: the visitor class has a current_loop attribute
-        // which this method use as a reference to know where to jump.
-        // XXX: example: 
-        //          current_loop = "for10"
-        //          break -> jmp for10_end
         virtual std::string compile_break() { return ""; }
         virtual std::string compile_enum(std::vector<std::unique_ptr<Instr>> values) { return ""; }
         virtual std::string compile_while(std::vector<std::unique_ptr<Instr>> conditions, 
@@ -51,6 +46,7 @@ class Visitor {
         uint_t while_counter = 0;
         uint_t for_counter = 0;
         uint_t loop_counter = 0;
+        std::string current_loop = "";
 };
 
 // Instruction set.
