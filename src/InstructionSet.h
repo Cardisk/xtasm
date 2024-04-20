@@ -29,6 +29,7 @@ class Visitor {
         virtual std::string compile_add(std::string dst, std::string src) { return ""; }
         virtual std::string compile_sub(std::string dst, std::string src) { return ""; }
         virtual std::string compile_mov(std::string dst, std::string src) { return ""; }
+        virtual std::string compile_jmp(std::string target) { return ""; }
         virtual std::string compile_break() { return ""; }
         virtual std::string compile_enum(std::vector<std::unique_ptr<Instr>> values) { return ""; }
         virtual std::string compile_while(std::vector<std::unique_ptr<Instr>> conditions, 
@@ -125,6 +126,15 @@ class Mov : public Instr {
 
         std::unique_ptr<Instr> dst;
         std::unique_ptr<Instr> src;
+};
+
+class Jmp : public Instr {
+    public:
+        explicit Jmp(std::unique_ptr<Instr> target) : target(std::move(target)) {}
+
+        std::string compile(Visitor &v) { return v.compile_jmp(this->target->compile(v)); }
+
+        std::unique_ptr<Instr> target;
 };
 
 class Break : public Instr {

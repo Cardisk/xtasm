@@ -37,4 +37,5 @@ end
     sub  .hello 5
 
 :end
-    exit .hello  
+    exit .hello
+    jmp :end

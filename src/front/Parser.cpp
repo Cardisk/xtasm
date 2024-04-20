@@ -133,6 +133,9 @@ std::unique_ptr<Instr> Parser::parse(Token tkn) {
         case TokenType::MOV: 
             return this->parse_mov();
 
+        case TokenType::JMP:
+            return this->parse_jmp();
+
         case TokenType::BREAK:
             return this->parse_break();
 
@@ -461,6 +464,33 @@ std::unique_ptr<Mov> Parser::parse_mov() {
 
     // now the values have been parsed.
     return std::make_unique<Mov>(std::move(dst), std::move(src));
+}
+
+std::unique_ptr<Jmp> Parser::parse_jmp() {
+
+    if (this->peek().is_none()) {
+        std::string msg = "Missing target for JMP instruction\n";
+        msg += "\tfound at -- " + token_loc(this->tkns[this->cursor - 1]);
+        // crashing the compiler.
+        crash(msg);
+    }
+
+    if (!this->peek().is_some_and(
+        [](Token x) { return x.type == TokenType::LABEL; }
+    )) {
+        auto tkn = this->advance().unwrap();
+        std::string msg = "Invalid target for JMP instruction (Not a label)\n";
+        msg += "\tfound -- '" + tkn.text + "'\n";
+        msg += "\tat    -- " + token_loc(tkn);
+        // crashing the compiler.
+        crash(msg);
+    }
+
+    // now it's safe.
+    auto tkn = this->advance().unwrap();
+    auto target = std::make_unique<Txt>(tkn.text);
+
+    return std::make_unique<Jmp>(std::move(target));
 }
 
 std::unique_ptr<Break> Parser::parse_break() {

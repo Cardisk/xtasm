@@ -41,6 +41,8 @@ class Parser {
         std::unique_ptr<Sub> parse_sub();
         // Used to parse a mov instruction.
         std::unique_ptr<Mov> parse_mov();
+        // Used to parse a jmp instruction.
+        std::unique_ptr<Jmp> parse_jmp();
         // Used to parse a break instruction.
         std::unique_ptr<Break> parse_break();
         // Used to parse an if condition.

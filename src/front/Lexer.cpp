@@ -319,6 +319,7 @@ Option<Token> Lexer::next() {
                     else if (tkn.text == "add")   tkn.type = TokenType::ADD;
                     else if (tkn.text == "sub")   tkn.type = TokenType::SUB;
                     else if (tkn.text == "mov")   tkn.type = TokenType::MOV;
+                    else if (tkn.text == "jmp")   tkn.type = TokenType::JMP;
                     else if (tkn.text == "enum")  tkn.type = TokenType::ENUM;
                     else if (tkn.text == "while") tkn.type = TokenType::WHILE;
                     else if (tkn.text == "for")   tkn.type = TokenType::FOR;

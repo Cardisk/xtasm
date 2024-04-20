@@ -40,6 +40,7 @@ enum TokenType {
     ADD,
     SUB,
     MOV,
+    JMP,
     // Variables.
     NAME,
     ENUM,
