@@ -39,6 +39,7 @@ enum TokenType {
     EXIT,
     ADD,
     SUB,
+    MUL,
     MOV,
     JMP,
     // Variables.

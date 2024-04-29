@@ -28,6 +28,7 @@ class Visitor {
         virtual std::string compile_exit(std::string value) { return ""; }
         virtual std::string compile_add(std::string dst, std::string src) { return ""; }
         virtual std::string compile_sub(std::string dst, std::string src) { return ""; }
+        virtual std::string compile_mul(std::string dst, std::string src) { return ""; }
         virtual std::string compile_mov(std::string dst, std::string src) { return ""; }
         virtual std::string compile_jmp(std::string target) { return ""; }
         virtual std::string compile_break() { return ""; }
@@ -113,6 +114,16 @@ class Sub : public Instr {
         explicit Sub(std::unique_ptr<Instr> dst, std::unique_ptr<Instr> src) : dst(std::move(dst)), src(std::move(src)) {}
 
         std::string compile(Visitor &v) { return v.compile_sub(this->dst->compile(v), this->src->compile(v)); }
+
+        std::unique_ptr<Instr> dst;
+        std::unique_ptr<Instr> src;
+};
+
+class Mul : public Instr {
+    public:
+        explicit Mul(std::unique_ptr<Instr> dst, std::unique_ptr<Instr> src) : dst(std::move(dst)), src(std::move(src)) {}
+
+        std::string compile(Visitor &v) { return v.compile_mul(this->dst->compile(v), this->src->compile(v)); }
 
         std::unique_ptr<Instr> dst;
         std::unique_ptr<Instr> src;

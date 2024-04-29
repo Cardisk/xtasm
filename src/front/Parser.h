@@ -39,6 +39,8 @@ class Parser {
         std::unique_ptr<Add> parse_add();
         // Used to parse a sub instruction.
         std::unique_ptr<Sub> parse_sub();
+        // Used to parse a mul instruction.
+        std::unique_ptr<Mul> parse_mul();
         // Used to parse a mov instruction.
         std::unique_ptr<Mov> parse_mov();
         // Used to parse a jmp instruction.
