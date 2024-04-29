@@ -13,6 +13,7 @@ with which you can implement some basic stuff.
 Arithmetics:
 - ADD
 - SUB
+- MUL
 
 Data:
 - VARIABLES (prefix '.')
