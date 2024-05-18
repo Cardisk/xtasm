@@ -2,7 +2,9 @@
 
 #include "./src/front/Lexer.h"
 #include "./src/front/Parser.h"
-#include "src/front/Token.h"
+#include "./src/front/Token.h"
+
+#include "./src/back/dll.h"
 
 #define OK 0
 #define ERR 1
@@ -80,6 +82,8 @@ int main(int argc, char** argv) {
 
     if (debug_tkns) print_tokens(vl);
     if (debug_parser) print_parser_info(vp);
+
+    std::cout << compile("./build/libtemplate.so", vp);
 
     return OK;
 }

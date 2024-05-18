@@ -43,7 +43,7 @@ class Visitor {
         virtual std::string compile_loop(std::vector<std::unique_ptr<Instr>> body) { return ""; }
         virtual std::string compile_var(std::string name, std::string value, bool is_decl) { return ""; }
 
-    private:
+    protected:
         uint_t if_counter = 0;
         uint_t while_counter = 0;
         uint_t for_counter = 0;

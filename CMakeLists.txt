@@ -11,6 +11,10 @@ set(LEXER ./src/front/Lexer.h ./src/front/Lexer.cpp)
 
 set(PARSER ./src/front/Parser.h ./src/front/Parser.cpp)
 
+set(DLL ./src/back/dll.h ./src/back/dll_unix.cpp)
+
 set(FRONT ${TOKEN} ${LEXER} ${PARSER})
 
-add_executable(xtasm main.cpp ${SHARED} ${FRONT})
+set(BACK ${DLL})
+
+add_executable(xtasm main.cpp ${SHARED} ${FRONT} ${BACK})
